@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres
+    container_name: mathjudgedb
+    environment:
+      POSTGRES_DB: mathjudge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
