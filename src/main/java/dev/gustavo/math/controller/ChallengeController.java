@@ -28,8 +28,8 @@ public class ChallengeController {
     }
 
     @GetMapping("/{id}")
-    public Challenge findById(@PathVariable Long id) {
-        return challengeService.findById(id);
+    public ChallengeResponseDTO findById(@PathVariable Long id) {
+        return ChallengeMapper.INSTANCE.toChallengeResponseDTO(challengeService.findById(id));
     }
 
     @PostMapping
