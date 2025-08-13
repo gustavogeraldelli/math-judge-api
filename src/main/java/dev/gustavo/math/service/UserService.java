@@ -1,7 +1,7 @@
 package dev.gustavo.math.service;
 
 import dev.gustavo.math.entity.User;
-import dev.gustavo.math.exception.user.UsernameIsAlreadyInUseException;
+import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
 import dev.gustavo.math.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
