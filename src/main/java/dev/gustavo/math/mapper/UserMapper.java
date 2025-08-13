@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
@@ -16,7 +16,8 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "role", constant = "ROLE_USER")
+    @Mapping(target = "rank", constant = "BEGINNER")
     User toUser(UserRequestDTO user);
 
-    UserResponseDTO  toUserResponseDTO(User user);
+    UserResponseDTO toUserResponseDTO(User user);
 }
