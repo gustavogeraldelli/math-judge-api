@@ -58,4 +58,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    public boolean existsById(UUID id) {
+        return userRepository.existsById(id);
+    }
+
 }

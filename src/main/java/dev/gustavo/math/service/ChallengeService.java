@@ -48,4 +48,8 @@ public class ChallengeService {
         challengeRepository.deleteById(id);
     }
 
+    public boolean existsById(Long id) {
+        return challengeRepository.existsById(id);
+    }
+
 }
