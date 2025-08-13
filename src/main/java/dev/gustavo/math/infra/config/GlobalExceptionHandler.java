@@ -1,5 +1,6 @@
 package dev.gustavo.math.infra.config;
 
+import dev.gustavo.math.exception.InvalidForeignKeyException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameIsAlreadyInUseException.class)
     public ResponseEntity<ErrorResponseDTO> handleUsernameIsAlreadyInUseException(UsernameIsAlreadyInUseException e) {
         return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidForeignKeyException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidForeignKeyException(InvalidForeignKeyException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
 }
