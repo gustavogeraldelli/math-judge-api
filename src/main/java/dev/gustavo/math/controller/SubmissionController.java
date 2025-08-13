@@ -1,0 +1,52 @@
+package dev.gustavo.math.controller;
+
+import dev.gustavo.math.controller.dto.PageableResponse;
+import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
+import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
+import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.entity.Submission;
+import dev.gustavo.math.mapper.SubmissionMapper;
+import dev.gustavo.math.service.ChallengeService;
+import dev.gustavo.math.service.SubmissionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/submissions")
+@RequiredArgsConstructor
+public class SubmissionController {
+
+    private final SubmissionService submissionService;
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public PageableResponse<SubmissionResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
+                                                           @RequestParam(defaultValue = "10") Integer size) {
+        var challengesPage = submissionService.findAll(PageRequest.of(page, size))
+                .map(SubmissionMapper.INSTANCE::toSubmissionResponseDTO);
+        return new PageableResponse<>(challengesPage);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public SubmissionResponseDTO findById(@PathVariable Long id) {
+        return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(submissionService.findById(id));
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public SubmissionResponseDTO save(@RequestBody SubmissionRequestDTO submissionCreateRequest) {
+        var submission = submissionService.create(
+                SubmissionMapper.INSTANCE.toSubmission(submissionCreateRequest));
+        return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(submission);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        submissionService.delete(id);
+    }
+
+}
