@@ -1,5 +1,7 @@
 package dev.gustavo.math.entity;
 
+import dev.gustavo.math.entity.enums.UserRank;
+import dev.gustavo.math.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,7 +37,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private Role role;
+    private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private UserRank rank;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private List<Submission> submissions;
@@ -48,8 +54,4 @@ public class User {
     @Column(nullable = false, name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public enum Role {
-        ROLE_ADMIN,
-        ROLE_USER
-    }
 }
