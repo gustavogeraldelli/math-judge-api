@@ -35,7 +35,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO save(@RequestBody UserRequestDTO userCreateRequest) {
+    public UserResponseDTO create(@RequestBody UserRequestDTO userCreateRequest) {
         var user = userService.create(UserMapper.INSTANCE.toUser(userCreateRequest));
         return UserMapper.INSTANCE.toUserResponseDTO(user);
     }
@@ -52,4 +52,5 @@ public class UserController {
     public void delete(@PathVariable UUID id) {
         userService.delete(id);
     }
+
 }
