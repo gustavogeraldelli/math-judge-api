@@ -1,6 +1,7 @@
 package dev.gustavo.math.service;
 
 import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.exception.InvalidForeignKeyException;
 import dev.gustavo.math.repository.ChallengeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -52,4 +53,9 @@ public class ChallengeService {
         return challengeRepository.existsById(id);
     }
 
+    public Challenge findByIdWithTestCases(Long id) {
+        return challengeRepository.findByIdWithTestCases(id).orElseThrow(
+                () -> new InvalidForeignKeyException("submission", id.toString())
+        );
+    }
 }
