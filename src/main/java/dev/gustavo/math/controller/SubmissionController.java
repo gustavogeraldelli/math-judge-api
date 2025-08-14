@@ -10,6 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/submissions")
 @RequiredArgsConstructor
@@ -44,6 +47,17 @@ public class SubmissionController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         submissionService.delete(id);
+    }
+
+    @GetMapping("/{userId}/{challengeId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SubmissionResponseDTO> listUserSubmissionsOnChallenge(@PathVariable UUID userId,
+                                                                      @PathVariable Long challengeId) {
+        var submissions = submissionService.listFromUserInChallenge(
+                SubmissionMapper.INSTANCE.userFromId(userId),
+                SubmissionMapper.INSTANCE.challengeFromId(challengeId));
+        return submissions.stream()
+                .map(SubmissionMapper.INSTANCE::toSubmissionResponseDTO).toList();
     }
 
 }

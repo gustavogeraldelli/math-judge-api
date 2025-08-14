@@ -3,6 +3,7 @@ package dev.gustavo.math.service;
 import dev.gustavo.math.entity.Challenge;
 import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.TestCase;
+import dev.gustavo.math.entity.User;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.InvalidForeignKeyException;
 import dev.gustavo.math.repository.SubmissionRepository;
@@ -13,6 +14,9 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -73,6 +77,16 @@ public class SubmissionService {
             }
         }
         submission.setStatus(SubmissionStatus.ACCEPTED);
+    }
+
+    public List<Submission> listFromUserInChallenge(User user, Challenge challenge) {
+        if (!userService.existsById(user.getId()))
+            throw new InvalidForeignKeyException("user", user.getId().toString());
+
+        if (!challengeService.existsById(challenge.getId()))
+            throw new InvalidForeignKeyException("challenge", challenge.getId().toString());
+
+        return submissionRepository.findByUserAndChallenge(user, challenge);
     }
 
 }
