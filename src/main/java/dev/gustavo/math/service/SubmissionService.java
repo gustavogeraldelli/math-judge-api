@@ -49,6 +49,9 @@ public class SubmissionService {
     }
 
     private void judgeSubmission(Challenge challenge, Submission submission) {
+        if (challenge.getSubmissions().isEmpty())
+            return;
+
         for (TestCase tc : challenge.getTestCases()) {
             try {
                 double input = Double.parseDouble(tc.getInput());
