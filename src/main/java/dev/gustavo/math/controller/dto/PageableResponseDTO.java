@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public record PageableResponse<T>(
+public record PageableResponseDTO<T>(
         List<T> items,
         Integer page,
         Integer size,
@@ -12,7 +12,7 @@ public record PageableResponse<T>(
         Integer totalPages
 
 ) {
-    public PageableResponse(Page<T> page) {
+    public PageableResponseDTO(Page<T> page) {
         this(page.getContent(),
                 page.getNumber(),
                 page.getSize(),

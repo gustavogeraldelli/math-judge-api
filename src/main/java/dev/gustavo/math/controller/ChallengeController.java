@@ -1,9 +1,8 @@
 package dev.gustavo.math.controller;
 
-import dev.gustavo.math.controller.dto.PageableResponse;
+import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.challenge.ChallengeRequestDTO;
 import dev.gustavo.math.controller.dto.challenge.ChallengeResponseDTO;
-import dev.gustavo.math.entity.Challenge;
 import dev.gustavo.math.mapper.ChallengeMapper;
 import dev.gustavo.math.service.ChallengeService;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +19,11 @@ public class ChallengeController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageableResponse<ChallengeResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
-                                                          @RequestParam(defaultValue = "10") Integer size) {
+    public PageableResponseDTO<ChallengeResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
+                                                             @RequestParam(defaultValue = "10") Integer size) {
         var challengesPage = challengeService.findAll(PageRequest.of(page, size))
                 .map(ChallengeMapper.INSTANCE::toChallengeResponseDTO);
-        return new PageableResponse<>(challengesPage);
+        return new PageableResponseDTO<>(challengesPage);
     }
 
     @GetMapping("/{id}")

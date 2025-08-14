@@ -1,6 +1,6 @@
 package dev.gustavo.math.controller;
 
-import dev.gustavo.math.controller.dto.PageableResponse;
+import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.mapper.UserMapper;
@@ -21,11 +21,11 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageableResponse<UserResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
-                                                     @RequestParam(defaultValue = "10") Integer size) {
+    public PageableResponseDTO<UserResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
+                                                        @RequestParam(defaultValue = "10") Integer size) {
         var usersPage = userService.findAll(PageRequest.of(page, size))
                 .map(UserMapper.INSTANCE::toUserResponseDTO);
-        return new PageableResponse<>(usersPage);
+        return new PageableResponseDTO<>(usersPage);
     }
 
     @GetMapping("/{id}")

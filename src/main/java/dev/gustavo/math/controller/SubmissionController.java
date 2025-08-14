@@ -1,12 +1,9 @@
 package dev.gustavo.math.controller;
 
-import dev.gustavo.math.controller.dto.PageableResponse;
+import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
-import dev.gustavo.math.entity.Challenge;
-import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.mapper.SubmissionMapper;
-import dev.gustavo.math.service.ChallengeService;
 import dev.gustavo.math.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,11 +19,11 @@ public class SubmissionController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageableResponse<SubmissionResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
-                                                           @RequestParam(defaultValue = "10") Integer size) {
+    public PageableResponseDTO<SubmissionResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
+                                                              @RequestParam(defaultValue = "10") Integer size) {
         var challengesPage = submissionService.findAll(PageRequest.of(page, size))
                 .map(SubmissionMapper.INSTANCE::toSubmissionResponseDTO);
-        return new PageableResponse<>(challengesPage);
+        return new PageableResponseDTO<>(challengesPage);
     }
 
     @GetMapping("/{id}")

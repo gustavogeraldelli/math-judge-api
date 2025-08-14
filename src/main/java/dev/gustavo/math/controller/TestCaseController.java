@@ -1,12 +1,10 @@
 package dev.gustavo.math.controller;
 
-import dev.gustavo.math.controller.dto.PageableResponse;
 import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.mapper.TestCaseMapper;
 import dev.gustavo.math.service.TestCaseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
