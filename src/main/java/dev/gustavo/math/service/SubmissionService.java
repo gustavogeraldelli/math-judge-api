@@ -33,7 +33,7 @@ public class SubmissionService {
 
     public Submission create(Submission submission) {
         if (!userService.existsById(submission.getUser().getId()))
-            throw new InvalidForeignKeyException("submission", submission.getUser().getId().toString());
+            throw new InvalidForeignKeyException("user", submission.getUser().getId().toString());
 
         var challenge = challengeService.findByIdWithTestCases(submission.getChallenge().getId());
 

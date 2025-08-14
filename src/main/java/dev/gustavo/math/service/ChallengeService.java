@@ -64,7 +64,7 @@ public class ChallengeService {
 
     public Challenge findByIdWithTestCases(Long id) {
         return challengeRepository.findByIdWithTestCases(id).orElseThrow(
-                () -> new InvalidForeignKeyException("submission", id.toString())
+                () -> new InvalidForeignKeyException("challenge", id.toString())
         );
     }
 }
