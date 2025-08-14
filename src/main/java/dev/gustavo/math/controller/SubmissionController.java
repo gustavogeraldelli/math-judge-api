@@ -21,9 +21,9 @@ public class SubmissionController {
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<SubmissionResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
                                                               @RequestParam(defaultValue = "10") Integer size) {
-        var challengesPage = submissionService.findAll(PageRequest.of(page, size))
+        var submissionsPage = submissionService.findAll(PageRequest.of(page, size))
                 .map(SubmissionMapper.INSTANCE::toSubmissionResponseDTO);
-        return new PageableResponseDTO<>(challengesPage);
+        return new PageableResponseDTO<>(submissionsPage);
     }
 
     @GetMapping("/{id}")
