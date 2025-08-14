@@ -7,6 +7,7 @@ import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.mapper.UserMapper;
 import dev.gustavo.math.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO create(@RequestBody UserRequestDTO userCreateRequest) {
+    public UserResponseDTO create(@Valid @RequestBody UserRequestDTO userCreateRequest) {
         var user = userService.create(UserMapper.INSTANCE.toUser(userCreateRequest));
         return UserMapper.INSTANCE.toUserResponseDTO(user);
     }
