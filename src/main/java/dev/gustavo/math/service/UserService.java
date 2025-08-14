@@ -1,7 +1,9 @@
 package dev.gustavo.math.service;
 
+import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
+import dev.gustavo.math.repository.SubmissionRepository;
 import dev.gustavo.math.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final SubmissionRepository submissionRepository;
 
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -56,6 +59,12 @@ public class UserService {
             throw new EntityNotFoundException(String.format("User with id %s not found", id));
 
         userRepository.deleteById(id);
+    }
+
+    public Page<Submission> listSubmissions(UUID id, Pageable pageable) {
+        if (!userRepository.existsById(id))
+            throw new EntityNotFoundException(String.format("User with id %s not found", id));
+        return submissionRepository.findByUserIdWithChallenge(id, pageable);
     }
 
     public boolean existsById(UUID id) {

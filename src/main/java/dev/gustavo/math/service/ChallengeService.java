@@ -1,8 +1,10 @@
 package dev.gustavo.math.service;
 
 import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.exception.InvalidForeignKeyException;
 import dev.gustavo.math.repository.ChallengeRepository;
+import dev.gustavo.math.repository.SubmissionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
+    private final SubmissionRepository submissionRepository;
 
     public Page<Challenge> findAll(Pageable pageable) {
         return challengeRepository.findAll(pageable);
@@ -47,6 +50,12 @@ public class ChallengeService {
         if (!challengeRepository.existsById(id))
             throw new EntityNotFoundException(String.format("Challenge with id %s not found", id));
         challengeRepository.deleteById(id);
+    }
+
+    public Page<Submission> listSubmissions(Long id, Pageable pageable) {
+        if (!challengeRepository.existsById(id))
+            throw new EntityNotFoundException(String.format("Challenge with id %s not found", id));
+        return submissionRepository.findByChallengeIdWithUser(id, pageable);
     }
 
     public boolean existsById(Long id) {
