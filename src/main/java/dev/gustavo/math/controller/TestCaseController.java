@@ -4,6 +4,7 @@ import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.mapper.TestCaseMapper;
 import dev.gustavo.math.service.TestCaseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class TestCaseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TestCase create(@RequestBody TestCaseRequestDTO testCaseCreateRequest) {
+    public TestCase create(@Valid @RequestBody TestCaseRequestDTO testCaseCreateRequest) {
         return testCaseService.create(
                 TestCaseMapper.INSTANCE.toTestCase(testCaseCreateRequest));
     }
