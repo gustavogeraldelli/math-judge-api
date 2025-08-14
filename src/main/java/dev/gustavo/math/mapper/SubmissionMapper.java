@@ -1,7 +1,9 @@
 package dev.gustavo.math.mapper;
 
+import dev.gustavo.math.controller.dto.challenge.ChallengeSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
+import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
 import dev.gustavo.math.entity.Challenge;
 import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.User;
@@ -21,6 +23,10 @@ public interface SubmissionMapper {
     Submission toSubmission(SubmissionRequestDTO submission);
 
     SubmissionResponseDTO toSubmissionResponseDTO(Submission submission);
+
+    UserSubmissionsResponseDTO toUserSubmissionsResponseDTO(Submission submission);
+
+    ChallengeSubmissionsResponseDTO toChallengeSubmissionsResponseDTO(Submission submission);
 
     default Challenge challengeFromId(Long challenge) {
         var c = new Challenge();
