@@ -76,7 +76,7 @@ The backend for a platform designed to host and evaluate mathematical challenges
 
 ### Pending Features
 
-- [ ] Additional endpoints
+- [x] Additional endpoints
     - List all submissions of a user
     - List submissions of a user for a specific challenge
     - List all submissions for a specific challenge
@@ -86,6 +86,7 @@ The backend for a platform designed to host and evaluate mathematical challenges
     - JWT token authentication
     - Route protection by role (`ROLE_USER`, `ROLE_ADMIN`)
     - Password encryption
+- [ ] Improve DTOs
 - [ ] User ranking system
 - [ ] Improve expression evaluation
   - Expressions with multiple variables (beyond just 'x')
