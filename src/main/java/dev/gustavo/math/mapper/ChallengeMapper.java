@@ -16,4 +16,10 @@ public interface ChallengeMapper {
     Challenge toChallenge(ChallengeRequestDTO challenge);
 
     ChallengeResponseDTO toChallengeResponseDTO(Challenge challenge);
+
+    default Challenge toChallenge(Long id) {
+        Challenge challenge = new Challenge();
+        challenge.setId(id);
+        return challenge;
+    }
 }

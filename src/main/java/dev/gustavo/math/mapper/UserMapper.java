@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.UUID;
+
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
@@ -28,4 +30,10 @@ public interface UserMapper {
     User toUser(LoginRequestDTO loginRequest);
 
     UserResponseDTO toUserResponseDTO(User user);
+
+    default User toUser(UUID id) {
+        User user = new User();
+        user.setId(id);
+        return user;
+    }
 }
