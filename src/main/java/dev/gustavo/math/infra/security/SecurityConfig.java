@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{id}").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}/submissions").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/{id}/challenges/{challengeId}/submissions").hasAnyRole("ADMIN", "USER")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/challenges").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/challenges/{id}").hasAnyRole("ADMIN", "USER")
@@ -51,7 +52,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/submissions/{id}").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/submissions").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/submissions/{id}").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/submissions/{userId}/{challengeId}").hasAnyRole("ADMIN", "USER")
 
                         .anyRequest().authenticated()
                 )
