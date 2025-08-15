@@ -36,13 +36,6 @@ public class UserController {
         return UserMapper.INSTANCE.toUserResponseDTO(userService.findById(id));
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO create(@Valid @RequestBody UserRequestDTO userCreateRequest) {
-        var user = userService.create(UserMapper.INSTANCE.toUser(userCreateRequest));
-        return UserMapper.INSTANCE.toUserResponseDTO(user);
-    }
-
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDTO update(@PathVariable UUID id, @RequestBody UserRequestDTO userUpdateRequest) {
