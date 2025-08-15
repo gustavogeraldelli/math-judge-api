@@ -24,7 +24,7 @@ public class TokenService {
                 .withClaim("username", user.getUsername())
                 .withClaim("role", user.getRole().name())
                 .withIssuedAt(Instant.now())
-                //.withExpiresAt()
+                .withExpiresAt(Instant.now().plusSeconds(1800))
                 .withIssuer("mathjudge")
                 .sign(algorithm);
     }
