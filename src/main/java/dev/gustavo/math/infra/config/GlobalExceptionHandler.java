@@ -1,6 +1,7 @@
 package dev.gustavo.math.infra.config;
 
 import dev.gustavo.math.exception.InvalidForeignKeyException;
+import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,11 @@ public class GlobalExceptionHandler {
             errors.put(((FieldError) error).getField(), error.getDefaultMessage());
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TokenDecodingException.class)
+    public ResponseEntity<ErrorResponseDTO> handleTokenDecodingException(TokenDecodingException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
 }
