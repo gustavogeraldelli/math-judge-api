@@ -5,12 +5,15 @@ import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
 import dev.gustavo.math.repository.SubmissionRepository;
 import dev.gustavo.math.repository.UserRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final SubmissionRepository submissionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Page<User> findAll(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -32,6 +36,8 @@ public class UserService {
     public User create(User user) {
         if (userRepository.existsByUsername(user.getUsername()))
             throw new UsernameIsAlreadyInUseException(String.format(user.getUsername()));
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
     }
@@ -69,6 +75,10 @@ public class UserService {
 
     public boolean existsById(UUID id) {
         return userRepository.existsById(id);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
 }
