@@ -7,6 +7,7 @@ import dev.gustavo.math.controller.dto.challenge.ChallengeSubmissionsResponseDTO
 import dev.gustavo.math.mapper.ChallengeMapper;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.ChallengeService;
+import dev.gustavo.math.service.SubmissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChallengeController {
 
     private final ChallengeService challengeService;
+    private final SubmissionService submissionService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -60,7 +62,9 @@ public class ChallengeController {
     public PageableResponseDTO<ChallengeSubmissionsResponseDTO> listChallengeSubmissions(@PathVariable Long id,
                                                                                          @RequestParam(defaultValue = "0") Integer page,
                                                                                          @RequestParam(defaultValue = "10") Integer size) {
-        var challengeSubmissions = challengeService.listSubmissions(id, PageRequest.of(page, size))
+        var challengeSubmissions = submissionService.listInChallenge(
+                        ChallengeMapper.INSTANCE.toChallenge(id),
+                        PageRequest.of(page, size))
                 .map(SubmissionMapper.INSTANCE::toChallengeSubmissionsResponseDTO);
         return new PageableResponseDTO<>(challengeSubmissions);
     }
