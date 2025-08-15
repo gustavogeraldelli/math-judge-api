@@ -29,6 +29,6 @@ public class AuthenticationService {
         if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword()))
             throw new InvalidLoginException();
 
-        return tokenService.generate(user);
+        return tokenService.generate(existingUser);
     }
 }
