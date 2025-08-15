@@ -1,12 +1,9 @@
 package dev.gustavo.math.service;
 
 import dev.gustavo.math.entity.TestCase;
-import dev.gustavo.math.exception.InvalidForeignKeyException;
+import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.repository.TestCaseRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,18 +13,13 @@ public class TestCaseService {
     private final TestCaseRepository testCaseRepository;
     private final ChallengeService challengeService;
 
-    public Page<TestCase> findAll(Pageable pageable) {
-        return testCaseRepository.findAll(pageable);
-    }
-
     public TestCase findById(Long id) {
         return testCaseRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Submission with id %s not found", id)));
+                () -> new EntityNotFoundException("Submission", id.toString()));
     }
 
     public TestCase create(TestCase testCase) {
-        if (!challengeService.existsById(testCase.getChallenge().getId()))
-            throw new InvalidForeignKeyException("challenge", testCase.getChallenge().getId().toString());
+        challengeService.existsById(testCase.getChallenge().getId());
         return testCaseRepository.save(testCase);
     }
 
@@ -35,8 +27,7 @@ public class TestCaseService {
         var existingTestCase = findById(id);
 
         if (testCase.getChallenge() != null) {
-            if (!challengeService.existsById(testCase.getChallenge().getId()))
-                throw new InvalidForeignKeyException("challenge", testCase.getChallenge().getId().toString());
+            challengeService.existsById(testCase.getChallenge().getId());
             existingTestCase.setChallenge(testCase.getChallenge());
         }
 
@@ -51,7 +42,7 @@ public class TestCaseService {
 
     public void delete(Long id) {
         if (!testCaseRepository.existsById(id))
-            throw new EntityNotFoundException(String.format("Test case with id %s not found", id));
+            throw new EntityNotFoundException("Test Case", id.toString());
         testCaseRepository.deleteById(id);
     }
 

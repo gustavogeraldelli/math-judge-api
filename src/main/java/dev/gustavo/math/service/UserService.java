@@ -1,19 +1,15 @@
 package dev.gustavo.math.service;
 
-import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.User;
+import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
-import dev.gustavo.math.repository.SubmissionRepository;
 import dev.gustavo.math.repository.UserRepository;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -21,7 +17,6 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final SubmissionRepository submissionRepository;
     private final PasswordEncoder passwordEncoder;
 
     public Page<User> findAll(Pageable pageable) {
@@ -30,7 +25,7 @@ public class UserService {
 
     public User findById(UUID id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("User with id %s not found", id)));
+                () -> new EntityNotFoundException("User", id.toString()));
     }
 
     public User create(User user) {
@@ -62,23 +57,18 @@ public class UserService {
 
     public void delete(UUID id) {
         if (!userRepository.existsById(id))
-            throw new EntityNotFoundException(String.format("User with id %s not found", id));
-
+            throw new EntityNotFoundException("User", id.toString());
         userRepository.deleteById(id);
     }
 
-    public Page<Submission> listSubmissions(UUID id, Pageable pageable) {
+    public void existsById(UUID id) {
         if (!userRepository.existsById(id))
-            throw new EntityNotFoundException(String.format("User with id %s not found", id));
-        return submissionRepository.findByUserIdWithChallenge(id, pageable);
+            throw new EntityNotFoundException("User", id.toString());
     }
 
-    public boolean existsById(UUID id) {
-        return userRepository.existsById(id);
-    }
-
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new EntityNotFoundException("User", username));
     }
 
 }

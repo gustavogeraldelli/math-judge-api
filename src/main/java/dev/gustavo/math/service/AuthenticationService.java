@@ -23,8 +23,7 @@ public class AuthenticationService {
     }
 
     public String login(User user) {
-        var existingUser = userService.findByUsername(user.getUsername())
-                .orElseThrow(InvalidLoginException::new);
+        var existingUser = userService.findByUsername(user.getUsername());
 
         if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword()))
             throw new InvalidLoginException();

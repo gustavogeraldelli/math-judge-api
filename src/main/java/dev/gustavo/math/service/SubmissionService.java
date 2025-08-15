@@ -5,18 +5,14 @@ import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
-import dev.gustavo.math.exception.InvalidForeignKeyException;
+import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.repository.SubmissionRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +28,11 @@ public class SubmissionService {
 
     public Submission findById(Long id) {
         return submissionRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Submission with id %s not found", id)));
+                () -> new EntityNotFoundException("Submission", id.toString()));
     }
 
     public Submission create(Submission submission) {
-        if (!userService.existsById(submission.getUser().getId()))
-            throw new InvalidForeignKeyException("user", submission.getUser().getId().toString());
+        userService.existsById(submission.getUser().getId());
 
         var challenge = challengeService.findByIdWithTestCases(submission.getChallenge().getId());
 
@@ -48,7 +43,7 @@ public class SubmissionService {
 
     public void delete(Long id) {
         if (!submissionRepository.existsById(id))
-            throw new EntityNotFoundException(String.format("Submission with id %s not found", id));
+            throw new EntityNotFoundException("Submission", id.toString());
         submissionRepository.deleteById(id);
     }
 
@@ -72,6 +67,7 @@ public class SubmissionService {
                 }
             }
             catch (Exception e) {
+                //
                 submission.setStatus(SubmissionStatus.WRONG_ANSWER);
                 return;
             }
@@ -79,14 +75,20 @@ public class SubmissionService {
         submission.setStatus(SubmissionStatus.ACCEPTED);
     }
 
-    public List<Submission> listFromUserInChallenge(User user, Challenge challenge) {
-        if (!userService.existsById(user.getId()))
-            throw new InvalidForeignKeyException("user", user.getId().toString());
+    public Page<Submission> listFromUser(User user, Pageable pageable) {
+        userService.existsById(user.getId());
+        return submissionRepository.findByUserIdWithChallenge(user.getId(), pageable);
+    }
 
-        if (!challengeService.existsById(challenge.getId()))
-            throw new InvalidForeignKeyException("challenge", challenge.getId().toString());
+    public Page<Submission> listInChallenge(Challenge challenge, Pageable pageable) {
+        challengeService.existsById(challenge.getId());
+        return submissionRepository.findByChallengeIdWithUser(challenge.getId(), pageable);
+    }
 
-        return submissionRepository.findByUserAndChallenge(user, challenge);
+    public Page<Submission> listFromUserInChallenge(User user, Challenge challenge, Pageable pageable) {
+        userService.existsById(user.getId());
+        challengeService.existsById(challenge.getId());
+        return submissionRepository.findByUserAndChallenge(user, challenge, pageable);
     }
 
 }
