@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
@@ -19,6 +18,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     @Query("SELECT s FROM Submission s JOIN FETCH s.challenge WHERE s.user.id = :id")
     Page<Submission> findByUserIdWithChallenge(UUID id, Pageable pageable);
 
-    List<Submission> findByUserAndChallenge(User user, Challenge challenge);
+    Page<Submission> findByUserAndChallenge(User user, Challenge challenge, Pageable pageable);
 
 }
