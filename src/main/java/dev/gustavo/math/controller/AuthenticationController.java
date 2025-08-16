@@ -1,7 +1,8 @@
 package dev.gustavo.math.controller;
 
-import dev.gustavo.math.controller.dto.user.LoginResponseDTO;
+import dev.gustavo.math.controller.doc.IAuthenticationController;
 import dev.gustavo.math.controller.dto.user.LoginRequestDTO;
+import dev.gustavo.math.controller.dto.user.LoginResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.mapper.UserMapper;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class AuthenticationController implements IAuthenticationController {
 
     private final AuthenticationService authenticationService;
 
