@@ -1,5 +1,6 @@
 package dev.gustavo.math.controller;
 
+import dev.gustavo.math.controller.doc.IUserController;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements IUserController {
 
     private final UserService userService;
     private final SubmissionService submissionService;
