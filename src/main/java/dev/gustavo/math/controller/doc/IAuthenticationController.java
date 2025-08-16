@@ -40,7 +40,7 @@ public interface IAuthenticationController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful",
-                content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+                content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "401", description = "Invalid username or password",
