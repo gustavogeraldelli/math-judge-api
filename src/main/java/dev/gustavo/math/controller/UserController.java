@@ -12,6 +12,7 @@ import dev.gustavo.math.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -33,12 +34,14 @@ public class UserController {
         return new PageableResponseDTO<>(usersPage);
     }
 
+    @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDTO findById(@PathVariable UUID id) {
         return UserMapper.INSTANCE.toUserResponseDTO(userService.findById(id));
     }
 
+    @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDTO update(@PathVariable UUID id, @RequestBody UserRequestDTO userUpdateRequest) {
@@ -46,12 +49,14 @@ public class UserController {
         return UserMapper.INSTANCE.toUserResponseDTO(updatedUser);
     }
 
+    @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         userService.delete(id);
     }
 
+    @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
     @GetMapping("/{id}/submissions")
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissions(@PathVariable UUID id,
@@ -64,6 +69,7 @@ public class UserController {
         return new PageableResponseDTO<>(userSubmissions);
     }
 
+    @PreAuthorize("#userId == authentication.principal or hasRole('ADMIN')")
     @GetMapping("/{userId}/challenges/{challengeId}/submissions")
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInChallenge(@PathVariable UUID userId,
