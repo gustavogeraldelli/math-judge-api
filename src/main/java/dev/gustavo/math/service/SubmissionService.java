@@ -48,7 +48,7 @@ public class SubmissionService {
     }
 
     private void judgeSubmission(Challenge challenge, Submission submission) {
-        if (challenge.getSubmissions().isEmpty())
+        if (challenge.getTestCases().isEmpty())
             return;
 
         for (TestCase tc : challenge.getTestCases()) {
