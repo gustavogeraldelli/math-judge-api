@@ -15,7 +15,7 @@ public class TestCaseService {
 
     public TestCase findById(Long id) {
         return testCaseRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Submission", id.toString()));
+                () -> new EntityNotFoundException("Test Case", id.toString()));
     }
 
     public TestCase create(TestCase testCase) {
