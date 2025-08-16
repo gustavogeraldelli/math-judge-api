@@ -9,7 +9,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/submissions")
@@ -29,8 +34,10 @@ public class SubmissionController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SubmissionResponseDTO findById(@PathVariable Long id) {
-        return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(submissionService.findById(id));
+    public SubmissionResponseDTO findById(@PathVariable Long id, Authentication auth) {
+        var userSubmission = submissionService.findByIdWithUser(id);
+
+        return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(userSubmission);
     }
 
     @PostMapping

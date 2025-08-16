@@ -26,8 +26,8 @@ public class SubmissionService {
         return submissionRepository.findAll(pageable);
     }
 
-    public Submission findById(Long id) {
-        return submissionRepository.findById(id).orElseThrow(
+    public Submission findByIdWithUser(Long id) {
+        return submissionRepository.findByIdWithUser(id).orElseThrow(
                 () -> new EntityNotFoundException("Submission", id.toString()));
     }
 
