@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Tag(name = "Users", description = "User management and submissions")
@@ -52,7 +53,7 @@ public interface IUserController {
             @ApiResponse(responseCode = "200", description = "User updated successfully",
                     content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
-                    content = @Content),
+                    content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -60,7 +61,10 @@ public interface IUserController {
     })
     UserResponseDTO update(UUID id, UserRequestDTO userUpdateRequest);
 
-    @Operation(summary = "Delete user (self or admin)")
+    @Operation(
+            summary = "Delete user (self or admin)",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deleted successfully",
                     content = @Content),
@@ -85,7 +89,10 @@ public interface IUserController {
     })
     PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissions(UUID id, Integer page, Integer size);
 
-    @Operation(summary = "List submissions of a user in a specific challenge (self or admin)")
+    @Operation(
+            summary = "List submissions of a user in a specific challenge (self or admin)",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Submissions retrieved successfully",
                     content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),

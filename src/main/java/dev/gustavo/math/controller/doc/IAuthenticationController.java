@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Map;
+
 @Tag(name = "Authentication", description = "Endpoints for user and administrator authentication")
 public interface IAuthenticationController {
 
@@ -26,9 +28,9 @@ public interface IAuthenticationController {
             @ApiResponse(responseCode = "201", description = "User successfully registered",
                 content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
-                content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+                content = @Content(schema = @Schema(implementation = Map.class)))
     })
-    UserResponseDTO register(@Valid @RequestBody UserRequestDTO userCreateRequest);
+    UserResponseDTO register(UserRequestDTO userCreateRequest);
 
 
     @Operation(
@@ -39,9 +41,11 @@ public interface IAuthenticationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful",
                 content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request body",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "401", description = "Invalid username or password",
                 content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
     })
-    LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO loginRequest);
+    LoginResponseDTO login(LoginRequestDTO loginRequest);
 
 }

@@ -1,5 +1,6 @@
 package dev.gustavo.math.controller;
 
+import dev.gustavo.math.controller.doc.ISubmissionController;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
@@ -9,17 +10,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/submissions")
 @RequiredArgsConstructor
-public class SubmissionController {
+public class SubmissionController implements ISubmissionController {
 
     private final SubmissionService submissionService;
 
@@ -34,7 +31,7 @@ public class SubmissionController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SubmissionResponseDTO findById(@PathVariable Long id, Authentication auth) {
+    public SubmissionResponseDTO findById(@PathVariable Long id) {
         var userSubmission = submissionService.findByIdWithUser(id);
 
         return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(userSubmission);

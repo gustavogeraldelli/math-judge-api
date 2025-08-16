@@ -1,5 +1,6 @@
 package dev.gustavo.math.controller;
 
+import dev.gustavo.math.controller.doc.IChallengeController;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.challenge.ChallengeRequestDTO;
 import dev.gustavo.math.controller.dto.challenge.ChallengeResponseDTO;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/challenges")
 @RequiredArgsConstructor
-public class ChallengeController {
+public class ChallengeController implements IChallengeController {
 
     private final ChallengeService challengeService;
     private final SubmissionService submissionService;

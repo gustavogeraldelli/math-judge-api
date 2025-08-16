@@ -1,5 +1,6 @@
 package dev.gustavo.math.controller;
 
+import dev.gustavo.math.controller.doc.ITestCaseController;
 import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.mapper.TestCaseMapper;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/testcases")
 @RequiredArgsConstructor
-public class TestCaseController {
+public class TestCaseController implements ITestCaseController {
 
     private final TestCaseService testCaseService;
 
