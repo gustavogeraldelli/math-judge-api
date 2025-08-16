@@ -52,11 +52,11 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated successfully",
                     content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request body",
-                    content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Username already in use",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     UserResponseDTO update(UUID id, UserRequestDTO userUpdateRequest);

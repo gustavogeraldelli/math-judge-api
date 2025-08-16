@@ -28,7 +28,9 @@ public interface IAuthenticationController {
             @ApiResponse(responseCode = "201", description = "User successfully registered",
                 content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
-                content = @Content(schema = @Schema(implementation = Map.class)))
+                content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "409", description = "Username already in use",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     UserResponseDTO register(UserRequestDTO userCreateRequest);
 
