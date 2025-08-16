@@ -1,0 +1,269 @@
+package dev.gustavo.math.service;
+
+import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.entity.Submission;
+import dev.gustavo.math.entity.TestCase;
+import dev.gustavo.math.entity.User;
+import dev.gustavo.math.entity.enums.SubmissionStatus;
+import dev.gustavo.math.exception.EntityNotFoundException;
+import dev.gustavo.math.repository.SubmissionRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class SubmissionServiceTest {
+
+    @Mock
+    private SubmissionRepository submissionRepository;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private ChallengeService challengeService;
+
+    @InjectMocks
+    private SubmissionService submissionService;
+
+    private Challenge challenge;
+    private Submission submission;
+    private User user;
+    private UUID userId;
+    private Long challengeId = 1L;
+    private Long submissionId = 1L;
+
+    @BeforeEach
+    void setUp() {
+        userId = UUID.randomUUID();
+        user = new User();
+        user.setId(userId);
+
+        challenge = new Challenge();
+        challenge.setId(challengeId);
+
+        submission = new Submission();
+        submission.setId(submissionId);
+        submission.setUser(user);
+        submission.setChallenge(challenge);
+        submission.setExpression("2x");
+    }
+
+    @Nested
+    @DisplayName("Find Submissions")
+    class FindSubmissions {
+        @Test
+        @DisplayName("Should return a paginated list of all submissions")
+        void findAllShouldReturnPaginatedSubmissions() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
+            when(submissionRepository.findAll(pageable)).thenReturn(submissionPage);
+
+            Page<Submission> submissions = submissionService.findAll(pageable);
+
+            assertFalse(submissions.isEmpty());
+            assertEquals(1, submissions.getTotalElements());
+            verify(submissionRepository, times(1)).findAll(pageable);
+        }
+
+        @Test
+        @DisplayName("Should find a submission by its ID successfully")
+        void findByIdWithUserShouldReturnSubmissionWhenFound() {
+            when(submissionRepository.findByIdWithUser(submissionId)).thenReturn(Optional.of(submission));
+
+            Submission foundSubmission = submissionService.findByIdWithUser(submissionId);
+
+            assertNotNull(foundSubmission);
+            assertEquals(submissionId, foundSubmission.getId());
+            verify(submissionRepository, times(1)).findByIdWithUser(submissionId);
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException when submission does not exist")
+        void findByIdWithUserShouldThrowExceptionWhenNotFound() {
+            when(submissionRepository.findByIdWithUser(submissionId)).thenReturn(Optional.empty());
+
+            assertThrows(EntityNotFoundException.class, () -> submissionService.findByIdWithUser(submissionId));
+        }
+    }
+
+    @Nested
+    @DisplayName("List Submission")
+    class ListSubmission {
+        @Test
+        @DisplayName("Should return a paginated list of all submissions from a user")
+        void listShouldReturnPagedSubmissionsFromUserWhenUserExists() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
+            doNothing().when(userService).existsById(userId);
+            when(submissionRepository.findByUserIdWithChallenge(userId, pageable)).thenReturn(submissionPage);
+
+            Page<Submission> submissions = submissionService.listFromUser(user, pageable);
+
+            assertFalse(submissions.getContent().isEmpty());
+            assertEquals(1, submissions.getTotalElements());
+            verify(userService, times(1)).existsById(userId);
+            verify(submissionRepository, times(1)).findByUserIdWithChallenge(userId, pageable);
+        }
+
+        @Test
+        @DisplayName("Should return a paginated list of all submissions in a challenge")
+        void listShouldReturnPagedSubmissionsInChallengeWhenChallengeExists() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
+            doNothing().when(challengeService).existsById(challengeId);
+            when(submissionRepository.findByChallengeIdWithUser(challengeId, pageable)).thenReturn(submissionPage);
+
+            Page<Submission> submissions = submissionService.listInChallenge(challenge, pageable);
+
+            assertFalse(submissions.getContent().isEmpty());
+            assertEquals(1, submissions.getTotalElements());
+            verify(challengeService, times(1)).existsById(challengeId);
+            verify(submissionRepository, times(1)).findByChallengeIdWithUser(challengeId, pageable);
+        }
+
+        @Test
+        @DisplayName("Should return a paginated list of all submissions from a user in a challenge")
+        void listShouldReturnPagedSubmissionsFromUserInChallengeWhenBothExists() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
+            doNothing().when(userService).existsById(userId);
+            doNothing().when(challengeService).existsById(challengeId);
+            when(submissionRepository.findByUserAndChallenge(user, challenge, pageable)).thenReturn(submissionPage);
+
+            Page<Submission> submissions = submissionService.listFromUserInChallenge(user, challenge, pageable);
+
+            assertFalse(submissions.isEmpty());
+            assertEquals(1, submissions.getTotalElements());
+            verify(userService, times(1)).existsById(userId);
+            verify(challengeService, times(1)).existsById(challengeId);
+            verify(submissionRepository, times(1)).findByUserAndChallenge(user, challenge, pageable);
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException when user does not exist")
+        void listFromUserShouldThrowExceptionWhenUserNotFound() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
+            doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
+
+            assertThrows(EntityNotFoundException.class, () -> submissionService.listFromUser(user, pageable));
+            verify(submissionRepository, never()).findByUserIdWithChallenge(any(UUID.class), any(PageRequest.class));
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException when challenge does not exist")
+        void listInChallengeShouldThrowExceptionWhenChallengeNotFound() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
+            doThrow(new EntityNotFoundException("Challenge", challengeId.toString())).when(challengeService).existsById(challengeId);
+
+            assertThrows(EntityNotFoundException.class, () -> submissionService.listInChallenge(challenge, pageable));
+            verify(submissionRepository, never()).findByChallengeIdWithUser(anyLong(), any(PageRequest.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Create Submission")
+    class CreateSubmission {
+        @Test
+        @DisplayName("Should create and return submission with ACCEPTED status for correct expression")
+        void createShouldReturnAcceptedWhenExpressionIsCorrect() {
+            TestCase tc1 = new TestCase(1L, challenge, "2", "4.0");
+            TestCase tc2 = new TestCase(2L, challenge, "5", "10.0");
+            challenge.setTestCases(Arrays.asList(tc1, tc2));
+
+            doNothing().when(userService).existsById(userId);
+            when(challengeService.findByIdWithTestCases(challengeId)).thenReturn(challenge);
+            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+
+            Submission createdSubmission = submissionService.create(submission);
+
+            assertNotNull(createdSubmission);
+            assertEquals(SubmissionStatus.ACCEPTED, createdSubmission.getStatus());
+            verify(submissionRepository, times(1)).save(submission);
+        }
+
+        @Test
+        @DisplayName("Should create and return submission with WRONG_ANSWER status for incorrect expression")
+        void createShouldReturnWrongAnswerWhenExpressionIsIncorrect() {
+            TestCase tc1 = new TestCase(1L, challenge, "2", "4.0");
+            TestCase tc2 = new TestCase(2L, challenge, "5", "11.0");
+            challenge.setTestCases(Arrays.asList(tc1, tc2));
+
+            doNothing().when(userService).existsById(userId);
+            when(challengeService.findByIdWithTestCases(challengeId)).thenReturn(challenge);
+            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+
+            Submission createdSubmission = submissionService.create(submission);
+
+            assertNotNull(createdSubmission);
+            assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
+        }
+
+        @Test
+        @DisplayName("Should create and return submission with WRONG_ANSWER for invalid expression syntax")
+        void createShouldReturnWrongAnswer_forInvalidExpression() {
+            submission.setExpression("2*x+");
+            TestCase tc1 = new TestCase(1L, challenge, "2", "4.0");
+            challenge.setTestCases(Collections.singletonList(tc1));
+
+            doNothing().when(userService).existsById(userId);
+            when(challengeService.findByIdWithTestCases(challengeId)).thenReturn(challenge);
+            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+
+            Submission createdSubmission = submissionService.create(submission);
+
+            assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException when user does not exist")
+        void createShouldThrowExceptionWhenUserNotFound() {
+            doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
+
+            assertThrows(EntityNotFoundException.class, () -> submissionService.create(submission));
+            verify(challengeService, never()).findByIdWithTestCases(anyLong());
+            verify(submissionRepository, never()).save(any(Submission.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("Delete Submission")
+    class DeleteSubmission {
+        @Test
+        @DisplayName("Should delete a submission successfully")
+        void deleteShouldRemoveSubmissionWhenSubmissionExists() {
+            when(submissionRepository.existsById(submissionId)).thenReturn(true);
+            doNothing().when(submissionRepository).deleteById(submissionId);
+
+            submissionService.delete(submissionId);
+
+            verify(submissionRepository, times(1)).existsById(submissionId);
+            verify(submissionRepository, times(1)).deleteById(submissionId);
+        }
+
+        @Test
+        @DisplayName("Should throw EntityNotFoundException when submission does not exist")
+        void deleteShouldThrowExceptionWhenSubmissionNotFound() {
+            when(submissionRepository.existsById(submissionId)).thenReturn(false);
+
+            assertThrows(EntityNotFoundException.class, () -> submissionService.delete(submissionId));
+            verify(submissionRepository, never()).deleteById(anyLong());
+        }
+    }
+}
