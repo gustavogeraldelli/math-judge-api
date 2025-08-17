@@ -23,7 +23,7 @@ The API was designed to be a complete and efficient solution for mathematical ch
 - **exp4j** for mathematical expression evaluation
 
 ## API Documentation
-- Access the Swagger UI at `http://localhost:8080/swagger-ui.html`
+- Access the Swagger UI at `http://localhost:8080/swagger-ui/index.html`
 - The documentation JSON is available at `http://localhost:8080/api-docs`
 
 ## Main Endpoints
