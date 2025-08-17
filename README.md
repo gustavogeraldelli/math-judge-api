@@ -1,30 +1,33 @@
 # Math Judge API
 
-## About
-
 The backend for a platform designed to host and evaluate mathematical challenges.
 Users can register, submit solutions to math problems, and have their answers automatically validated against a set of test cases.
 
-### Technologies
+## Overview
+The API was designed to be a complete and efficient solution for mathematical challenge platforms, offering:
 
-- Java 21
-- Spring Boot 3
-- Spring Data JPA
-- Spring Security with JWT authentication
-- PostgreSQL
-- Flyway for database versioning
-- MapStruct for DTO mapping
-- Lombok
-- exp4j for mathematical expression evaluation
+- User registration and authentication with JWT tokens
+- Challenge management, including creation, updating, and deletion
+- Test case management for each challenge
+- Solution submission and automatic evaluation
+- Role-based access control for administrative endpoints
 
-## API
+## Technologies
+- **Java 21**, **Spring Boot 3.5.4**
+- **Maven**
+- **PostgreSQL**, **Flyway**, **Spring Data JPA**
+- **Spring Security** with **JWT**
+- **JUnit 5** and **Mockito** for tests
+- **Springdoc OpenAPI (Swagger)** for API documentation
+- **MapStruct** and **Lombok** for productivity
+- **exp4j** for mathematical expression evaluation
 
+## API Documentation
+- Access the Swagger UI at `http://localhost:8080/swagger-ui.html`
+- The documentation JSON is available at `http://localhost:8080/api-docs`
+
+## Main Endpoints
 ### Authentication (`/api/v1/auth`)
-
-<details>
-
-<summary>Endpoints</summary>
-
 - `POST /api/v1/auth/register` → registers a new user
   - Payload
     ```json
@@ -35,7 +38,6 @@ Users can register, submit solutions to math problems, and have their answers au
     }
     ```
 - `POST /api/v1/auth/login` → returns a JWT token
-
   - Payload
     ```json
     {
@@ -51,79 +53,24 @@ Users can register, submit solutions to math problems, and have their answers au
     }
     ```
 
-</details>
-
-      
 ### Users (`/api/v1/users`)
-
-<details>
-
-<summary>Endpoints</summary>
-
 - `GET /api/v1/users` → lists all users (admin only)
 - `GET /api/v1/users/{id}` → get user info (self or admin)
-- `PUT /api/v1/users/{id}` → update user (self or admin)
-- `DELETE /api/v1/users/{id}` → delete user and its submissions (self or admin)
 - `GET /api/v1/{id}/submissions` → list all submissions of a user (self or admin)
-- `GET /api/v1/{userId}/challenges/{challengeId}/submissions` → ist all submissions of a user for a specific challenge (self or admin)
+- `GET /api/v1/{userId}/challenges/{challengeId}/submissions` → list all submissions of a user for a specific challenge (self or admin)
 
-</details>
 
 ### Challenges (`/api/v1/challenges`)
-
-<details>
-
-<summary>Endpoints</summary>
-
-- `POST /api/v1/challenges` → creates a new challenge
-  - Payload
-    ```json
-    {
-      "title": "Derivatives 101",
-      "description": "Find the derivative of x^2",
-      "difficulty": "EASY"
-    }
-    ```
-- `GET /api/v1/challenges` → lists all challenges (user/admin)
-- `GET /api/v1/challenges/{id}` → returns a specific challenge (user/admin)
-- `PUT /api/v1/challenges/{id}` → updates a challenge (admin only)
-- `DELETE /api/v1/challenges/{id}` → deletes a challenge and its test cases and submissions (admin only)
+- `GET /api/v1/challenges` → list all challenges (user/admin)
 - `GET /api/v1/challenges/{id}/submissions` → list all submissions for a challenge (admin only)
 
-</details>
-
-### Test Cases (`/api/v1/testcases`)
-
-<details>
-
-<summary>Endpoints</summary>
-
-- `POST /api/v1/testcases` → create a test case for a challenge (admin only)
-  - Payload
-    ```json
-    {
-      "challenge": 1,
-      "input": "10",
-      "expectedOutput": "20"
-    } 
-    ```
-- `PUT /api/v1/testcases/{id}` → updates a test case (admin only)
-- `DELETE /api/v1/testcases/{id}` → deletes a test case (admin only)
-
-</details>
-
 ### Submissions (`/api/v1/submissions`)
-
-<details>
-
-<summary>Endpoints</summary>
-
-- `POST /api/v1/submissions` → create a submission (user/admin)
+- `POST /api/v1/submissions` → submits a solution to a challenge
   - Payload
     ```json
     {
       "challenge": 1,
-      "user": "uuid-of-user",
+      "user": "user-uuid",
       "expression": "2x"
     }
     ```
@@ -132,33 +79,65 @@ Users can register, submit solutions to math problems, and have their answers au
     {
       "challenge": 1,
       "status": "ACCEPTED",
-      "submittedAt": "timestamp"
+      "submittedAt": "2025-08-16T21:38:00"
     }
     ```
-- `GET /api/v1/submissions` → lists all submissions (admin only)
-- `GET /api/v1/submissions/{id}` → returns a specific submission (user/admin)
-- `DELETE /api/v1/submissions/{id}` → deletes a submission (admin only)
 
-</details>
+Refer to the Swagger documentation for detailed examples of all endpoints.
 
----
+## Project Structure
+```
+src/
+├── main/
+│   ├── java/
+│   │   └── dev/gustavo/math/
+│   │       ├── controller/ 
+│   │       │   ├── dto/
+│   │       │   └── doc/
+│   │       ├── entity/
+│   │       │   └── enums
+│   │       ├── exceptions/
+│   │       ├── infra/
+│   │       │   ├── config/
+│   │       │   └── security/
+│   │       ├── mapper/
+│   │       ├── repository/
+│   │       └── service/
+│   └── resources/
+│       ├── db/migration/
+│       └── application.yml
+└── test/
+    └── java/
+        └── dev/gustavo/math/
+            └── service/
+```
 
-### Pending Features
+## Build, Execution, and Shutdown
+- Start the database with Docker
+  ```bash
+  docker-compose -f docker/docker-compose.yml up -d
+  ```
 
-- [ ] Swagger/OpenAPI documentation
+- Run the tests
+  ```bash
+  ./mvnw test
+  ```
+
+- Run the application
+  ```bash
+  ./mvnw spring-boot:run
+  ```
+
+- Stop the database
+  ```bash
+  docker-compose docker/docker-compose.yml down
+  ```
+
+
+## Future Improvements
 - [ ] Improve DTOs
 - [ ] User ranking system
-- [ ] Users must be able to see only their own submissions by ID
 - [ ] Improve expression evaluation
-- [x] Additional endpoints
-    - List all submissions of a user
-    - List submissions of a user for a specific challenge
-    - List all submissions for a specific challenge
-- [x] Additional endpoint validations
-- [x] Security
-    - JWT token authentication
-    - Route protection by role (`ROLE_USER`, `ROLE_ADMIN`)
-    - Password encryption
-  - Expressions with multiple variables (beyond just 'x')
+- [ ] Expressions with multiple variables (beyond just 'x')
 - [ ] Async processing
   - Implement `PENDING`, `EVALUATING`, `ACCEPTED`, `WRONG_ANSWER` statuses using asynchronous evaluation logic
