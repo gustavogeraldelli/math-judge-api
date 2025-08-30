@@ -11,7 +11,7 @@ public record TestCaseRequestDTO(
         Long challenge,
 
         @Schema(description = "Input value for the test case", type = "string", example = "10")
-        @NotBlank(message = "Input is required")
+        @NotNull(message = "Input cannot be null")
         String input,
 
         @Schema(description = "Expected output for the test case", type = "string", example = "20")
