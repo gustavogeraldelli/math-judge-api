@@ -14,6 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class SubmissionService {
@@ -53,11 +56,19 @@ public class SubmissionService {
 
         for (TestCase tc : challenge.getTestCases()) {
             try {
-                double input = Double.parseDouble(tc.getInput());
-                Expression expression = new ExpressionBuilder(submission.getExpression())
-                        .variables("x")
-                        .build()
-                        .setVariable("x", input);
+                Set<String> variables = extractVariables(submission.getExpression());
+
+                var exprBuilder = new ExpressionBuilder(submission.getExpression());
+                // no variable or only x for now
+                for (String variable : variables) {
+                    exprBuilder.variable(variable);
+                }
+                Expression expression = exprBuilder.build();
+                for (String variable : variables) {
+                    double input = Double.parseDouble(tc.getInput());
+                    expression.setVariable(variable, input);
+                }
+
                 double result = expression.evaluate();
                 double expectedOutput = Double.parseDouble(tc.getExpectedOutput());
 
@@ -73,6 +84,14 @@ public class SubmissionService {
             }
         }
         submission.setStatus(SubmissionStatus.ACCEPTED);
+    }
+
+    private Set<String> extractVariables(String expression) {
+        Set<String> vars = new HashSet<>();
+        if (expression.contains("x")) {
+            vars.add("x");
+        }
+        return vars;
     }
 
     public Page<Submission> listFromUser(User user, Pageable pageable) {
