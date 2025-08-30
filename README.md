@@ -1,8 +1,4 @@
 # Math Judge API
-
-The backend for a platform designed to host and evaluate mathematical challenges.
-Users can register, submit solutions to math problems, and have their answers automatically validated against a set of test cases.
-
 ## Overview
 The API was designed to be a complete and efficient solution for mathematical challenge platforms, offering:
 
@@ -27,7 +23,11 @@ The API was designed to be a complete and efficient solution for mathematical ch
 - The documentation JSON is available at `http://localhost:8080/api-docs`
 
 ## Main Endpoints
-### Authentication (`/api/v1/auth`)
+
+<details>
+<summary><b>See more</b></summary>
+
+### Authentication `/api/v1/auth`
 - `POST /api/v1/auth/register` → registers a new user
   - Payload
     ```json
@@ -53,18 +53,17 @@ The API was designed to be a complete and efficient solution for mathematical ch
     }
     ```
 
-### Users (`/api/v1/users`)
-- `GET /api/v1/users` → lists all users (admin only)
+### Users `/api/v1/users`
 - `GET /api/v1/users/{id}` → get user info (self or admin)
 - `GET /api/v1/{id}/submissions` → list all submissions of a user (self or admin)
 - `GET /api/v1/{userId}/challenges/{challengeId}/submissions` → list all submissions of a user for a specific challenge (self or admin)
 
 
-### Challenges (`/api/v1/challenges`)
+### Challenges `/api/v1/challenges`
 - `GET /api/v1/challenges` → list all challenges (user/admin)
 - `GET /api/v1/challenges/{id}/submissions` → list all submissions for a challenge (admin only)
 
-### Submissions (`/api/v1/submissions`)
+### Submissions `/api/v1/submissions`
 - `POST /api/v1/submissions` → submits a solution to a challenge
   - Payload
     ```json
@@ -85,6 +84,28 @@ The API was designed to be a complete and efficient solution for mathematical ch
 
 Refer to the Swagger documentation for detailed examples of all endpoints.
 
+</details>
+
+## Challenges and Submissions
+Each challenge describes a mathematical problem. Users must submit a solution that passes all predefined test cases for that challenge.
+
+### 1. Numeric submission
+The user must find the numeric value of one or more variables that satisfy an equation.
+- Example
+  - Challenge: _"What is the solution of the equation `2x + 6 = 10`?"_
+  - Submission:
+    ```json 
+    { "expression": "2" }
+    ```
+    
+### 2. Expression submission
+The user must provide a mathematical expression that matches the problem statement.
+- Example
+  - Challenge: _"Find the derivative of `x^3`?"_
+  - Submission:
+    ```json 
+    { "expression": "3x^2" }
+    ```
 ## Project Structure
 ```
 src/
@@ -137,7 +158,6 @@ src/
 ## Future Improvements
 - [ ] Improve DTOs
 - [ ] User ranking system
-- [ ] Improve expression evaluation
-- [ ] Expressions with multiple variables (beyond just 'x')
 - [ ] Async processing
   - Implement `PENDING`, `EVALUATING`, `ACCEPTED`, `WRONG_ANSWER` statuses using asynchronous evaluation logic
+- [ ] Expressions with multiple variables (beyond just 'x')
