@@ -16,19 +16,19 @@ import org.springframework.web.bind.annotation.*;
 public class TestCaseController implements ITestCaseController {
 
     private final TestCaseService testCaseService;
-
+    private final TestCaseMapper testCaseMapper;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TestCase create(@Valid @RequestBody TestCaseRequestDTO testCaseCreateRequest) {
         return testCaseService.create(
-                TestCaseMapper.INSTANCE.toTestCase(testCaseCreateRequest));
+                testCaseMapper.toTestCase(testCaseCreateRequest));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TestCase update(@PathVariable Long id, @RequestBody TestCaseRequestDTO testCaseUpdateRequest) {
         return testCaseService.update(
-                id, TestCaseMapper.INSTANCE.toTestCase(testCaseUpdateRequest));
+                id, testCaseMapper.toTestCase(testCaseUpdateRequest));
     }
 
     @DeleteMapping("/{id}")

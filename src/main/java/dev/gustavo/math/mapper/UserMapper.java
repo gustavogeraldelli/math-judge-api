@@ -6,14 +6,11 @@ import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -31,9 +28,5 @@ public interface UserMapper {
 
     UserResponseDTO toUserResponseDTO(User user);
 
-    default User toUser(UUID id) {
-        User user = new User();
-        user.setId(id);
-        return user;
-    }
+    User toUser(UUID id);
 }

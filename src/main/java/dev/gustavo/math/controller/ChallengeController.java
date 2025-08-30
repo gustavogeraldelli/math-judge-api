@@ -22,34 +22,36 @@ public class ChallengeController implements IChallengeController {
 
     private final ChallengeService challengeService;
     private final SubmissionService submissionService;
+    private final ChallengeMapper challengeMapper;
+    private final SubmissionMapper submissionMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<ChallengeResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
                                                              @RequestParam(defaultValue = "10") Integer size) {
         var challengesPage = challengeService.findAll(PageRequest.of(page, size))
-                .map(ChallengeMapper.INSTANCE::toChallengeResponseDTO);
+                .map(challengeMapper::toChallengeResponseDTO);
         return new PageableResponseDTO<>(challengesPage);
     }
 
     @GetMapping("/{id}")
     public ChallengeResponseDTO findById(@PathVariable Long id) {
-        return ChallengeMapper.INSTANCE.toChallengeResponseDTO(challengeService.findById(id));
+        return challengeMapper.toChallengeResponseDTO(challengeService.findById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ChallengeResponseDTO create(@Valid @RequestBody ChallengeRequestDTO challengeCreateRequest) {
-        var challenge = challengeService.create(ChallengeMapper.INSTANCE.toChallenge(challengeCreateRequest));
-        return ChallengeMapper.INSTANCE.toChallengeResponseDTO(challenge);
+        var challenge = challengeService.create(challengeMapper.toChallenge(challengeCreateRequest));
+        return challengeMapper.toChallengeResponseDTO(challenge);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ChallengeResponseDTO update(@PathVariable Long id, @RequestBody ChallengeRequestDTO challengeUpdateRequest) {
         var updatedChallenge = challengeService.update(id,
-                ChallengeMapper.INSTANCE.toChallenge(challengeUpdateRequest));
-        return ChallengeMapper.INSTANCE.toChallengeResponseDTO(updatedChallenge);
+                challengeMapper.toChallenge(challengeUpdateRequest));
+        return challengeMapper.toChallengeResponseDTO(updatedChallenge);
     }
 
     @DeleteMapping("/{id}")
@@ -64,9 +66,9 @@ public class ChallengeController implements IChallengeController {
                                                                                          @RequestParam(defaultValue = "0") Integer page,
                                                                                          @RequestParam(defaultValue = "10") Integer size) {
         var challengeSubmissions = submissionService.listInChallenge(
-                        ChallengeMapper.INSTANCE.toChallenge(id),
+                        challengeMapper.toChallenge(id),
                         PageRequest.of(page, size))
-                .map(SubmissionMapper.INSTANCE::toChallengeSubmissionsResponseDTO);
+                .map(submissionMapper::toChallengeSubmissionsResponseDTO);
         return new PageableResponseDTO<>(challengeSubmissions);
     }
 

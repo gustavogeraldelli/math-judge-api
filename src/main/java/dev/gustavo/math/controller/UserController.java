@@ -25,13 +25,16 @@ public class UserController implements IUserController {
 
     private final UserService userService;
     private final SubmissionService submissionService;
+    private final UserMapper userMapper;
+    private final SubmissionMapper submissionMapper;
+    private final ChallengeMapper challengeMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<UserResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
                                                         @RequestParam(defaultValue = "10") Integer size) {
         var usersPage = userService.findAll(PageRequest.of(page, size))
-                .map(UserMapper.INSTANCE::toUserResponseDTO);
+                .map(userMapper::toUserResponseDTO);
         return new PageableResponseDTO<>(usersPage);
     }
 
@@ -39,15 +42,15 @@ public class UserController implements IUserController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDTO findById(@PathVariable UUID id) {
-        return UserMapper.INSTANCE.toUserResponseDTO(userService.findById(id));
+        return userMapper.toUserResponseDTO(userService.findById(id));
     }
 
     @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDTO update(@PathVariable UUID id, @RequestBody UserRequestDTO userUpdateRequest) {
-        var updatedUser = userService.update(id, UserMapper.INSTANCE.toUser(userUpdateRequest));
-        return UserMapper.INSTANCE.toUserResponseDTO(updatedUser);
+        var updatedUser = userService.update(id, userMapper.toUser(userUpdateRequest));
+        return userMapper.toUserResponseDTO(updatedUser);
     }
 
     @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
@@ -64,9 +67,9 @@ public class UserController implements IUserController {
                                                                                @RequestParam(defaultValue = "0") Integer page,
                                                                                @RequestParam(defaultValue = "10") Integer size) {
         var userSubmissions = submissionService.listFromUser(
-                        UserMapper.INSTANCE.toUser(id),
+                        userMapper.toUser(id),
                         PageRequest.of(page, size))
-                .map(SubmissionMapper.INSTANCE::toUserSubmissionsResponseDTO);
+                .map(submissionMapper::toUserSubmissionsResponseDTO);
         return new PageableResponseDTO<>(userSubmissions);
     }
 
@@ -78,10 +81,10 @@ public class UserController implements IUserController {
                                                                                           @RequestParam(defaultValue = "0") Integer page,
                                                                                           @RequestParam(defaultValue = "10") Integer size) {
         var userSubmissions = submissionService.listFromUserInChallenge(
-                        UserMapper.INSTANCE.toUser(userId),
-                        ChallengeMapper.INSTANCE.toChallenge(challengeId),
+                        userMapper.toUser(userId),
+                        challengeMapper.toChallenge(challengeId),
                         PageRequest.of(page, size))
-                .map(SubmissionMapper.INSTANCE::toUserSubmissionsResponseDTO);
+                .map(submissionMapper::toUserSubmissionsResponseDTO);
         return new PageableResponseDTO<>(userSubmissions);
     }
 

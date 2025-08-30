@@ -19,13 +19,14 @@ import org.springframework.web.bind.annotation.*;
 public class SubmissionController implements ISubmissionController {
 
     private final SubmissionService submissionService;
+    private final SubmissionMapper submissionMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<SubmissionResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
                                                               @RequestParam(defaultValue = "10") Integer size) {
         var submissionsPage = submissionService.findAll(PageRequest.of(page, size))
-                .map(SubmissionMapper.INSTANCE::toSubmissionResponseDTO);
+                .map(submissionMapper::toSubmissionResponseDTO);
         return new PageableResponseDTO<>(submissionsPage);
     }
 
@@ -34,15 +35,15 @@ public class SubmissionController implements ISubmissionController {
     public SubmissionResponseDTO findById(@PathVariable Long id) {
         var userSubmission = submissionService.findByIdWithUser(id);
 
-        return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(userSubmission);
+        return submissionMapper.toSubmissionResponseDTO(userSubmission);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SubmissionResponseDTO create(@Valid @RequestBody SubmissionRequestDTO submissionCreateRequest) {
         var submission = submissionService.create(
-                SubmissionMapper.INSTANCE.toSubmission(submissionCreateRequest));
-        return SubmissionMapper.INSTANCE.toSubmissionResponseDTO(submission);
+                submissionMapper.toSubmission(submissionCreateRequest));
+        return submissionMapper.toSubmissionResponseDTO(submission);
     }
 
     @DeleteMapping("/{id}")

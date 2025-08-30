@@ -10,14 +10,8 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface TestCaseMapper {
 
-    TestCaseMapper INSTANCE = Mappers.getMapper(TestCaseMapper.class);
-
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "challenge.id", source = "challenge")
     TestCase toTestCase(TestCaseRequestDTO testCase);
 
-    default Challenge challengeFromId(Long challengeId) {
-        var c = new Challenge();
-        c.setId(challengeId);
-        return c;
-    }
 }

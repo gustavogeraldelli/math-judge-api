@@ -4,47 +4,24 @@ import dev.gustavo.math.controller.dto.challenge.ChallengeSubmissionsResponseDTO
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
-import dev.gustavo.math.entity.Challenge;
 import dev.gustavo.math.entity.Submission;
-import dev.gustavo.math.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-
-import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface SubmissionMapper {
 
-    SubmissionMapper INSTANCE = Mappers.getMapper(SubmissionMapper.class);
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", constant = "PENDING")
+    @Mapping(target = "challenge.id", source = "challenge")
+    @Mapping(target = "user.id", source = "user")
     Submission toSubmission(SubmissionRequestDTO submission);
 
+    @Mapping(target = "challenge", source = "challenge.id")
     SubmissionResponseDTO toSubmissionResponseDTO(Submission submission);
 
     UserSubmissionsResponseDTO toUserSubmissionsResponseDTO(Submission submission);
 
     ChallengeSubmissionsResponseDTO toChallengeSubmissionsResponseDTO(Submission submission);
 
-    default Challenge challengeFromId(Long challenge) {
-        var c = new Challenge();
-        c.setId(challenge);
-        return c;
-    }
-
-    default User userFromId(UUID user) {
-        var u = new User();
-        u.setId(user);
-        return u;
-    }
-
-    default Long idFromChallenge(Challenge challenge) {
-        return challenge.getId();
-    }
-
-    default UUID idFromUser(User user) {
-        return user.getId();
-    }
 }

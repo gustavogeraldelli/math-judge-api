@@ -18,18 +18,19 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController implements IAuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final UserMapper userMapper;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDTO register(@Valid @RequestBody UserRequestDTO userCreateRequest) {
-        var user = authenticationService.register(UserMapper.INSTANCE.toUser(userCreateRequest));
-        return UserMapper.INSTANCE.toUserResponseDTO(user);
+        var user = authenticationService.register(userMapper.toUser(userCreateRequest));
+        return userMapper.toUserResponseDTO(user);
     }
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
     public LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        var token = authenticationService.login(UserMapper.INSTANCE.toUser(loginRequest));
+        var token = authenticationService.login(userMapper.toUser(loginRequest));
         return new LoginResponseDTO(token);
     }
 
