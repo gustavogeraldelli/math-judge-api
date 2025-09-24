@@ -1,10 +1,10 @@
 # Math Judge API
 ## Overview
-The API was designed to be a complete and efficient solution for mathematical challenge platforms, offering:
+The API was designed to be a complete and efficient solution for mathematical problem platforms, offering:
 
 - User registration and authentication with JWT tokens
-- Challenge management, including creation, updating, and deletion
-- Test case management for each challenge
+- Problem management, including creation, updating, and deletion
+- Test case management for each problem
 - Solution submission and automatic evaluation
 - Role-based access control for administrative endpoints
 
@@ -56,19 +56,19 @@ The API was designed to be a complete and efficient solution for mathematical ch
 ### Users `/api/v1/users`
 - `GET /api/v1/users/{id}` → get user info (self or admin)
 - `GET /api/v1/{id}/submissions` → list all submissions of a user (self or admin)
-- `GET /api/v1/{userId}/challenges/{challengeId}/submissions` → list all submissions of a user for a specific challenge (self or admin)
+- `GET /api/v1/{userId}/problems/{problemId}/submissions` → list all submissions of a user for a specific problem (self or admin)
 
 
-### Challenges `/api/v1/challenges`
-- `GET /api/v1/challenges` → list all challenges (user/admin)
-- `GET /api/v1/challenges/{id}/submissions` → list all submissions for a challenge (admin only)
+### Problems `/api/v1/problems`
+- `GET /api/v1/problems` → list all problems (user/admin)
+- `GET /api/v1/problems/{id}/submissions` → list all submissions for a problem (admin only)
 
 ### Submissions `/api/v1/submissions`
-- `POST /api/v1/submissions` → submits a solution to a challenge
+- `POST /api/v1/submissions` → submits a solution to a problem
   - Payload
     ```json
     {
-      "challenge": 1,
+      "problem": 1,
       "user": "user-uuid",
       "expression": "2x"
     }
@@ -76,7 +76,7 @@ The API was designed to be a complete and efficient solution for mathematical ch
   - Response
     ```json
     {
-      "challenge": 1,
+      "problem": 1,
       "status": "ACCEPTED",
       "submittedAt": "2025-08-16T21:38:00"
     }
@@ -86,13 +86,13 @@ Refer to the Swagger documentation for detailed examples of all endpoints.
 
 </details>
 
-## Challenges and Submissions
-Each challenge describes a mathematical problem. Users must submit a solution that passes all predefined test cases for that challenge.
+## Problems and Submissions
+Each problem describes a mathematical problem. Users must submit a solution that passes all predefined test cases for that problem.
 
 ### 1. Numeric submission
 The user must find the numeric value of one or more variables that satisfy an equation.
 - Example
-  - Challenge: _"What is the solution of the equation `2x + 6 = 10`?"_
+  - Problem: _"What is the solution of the equation `2x + 6 = 10`?"_
   - Submission:
     ```json 
     { "expression": "2" }
@@ -101,7 +101,7 @@ The user must find the numeric value of one or more variables that satisfy an eq
 ### 2. Expression submission
 The user must provide a mathematical expression that matches the problem statement.
 - Example
-  - Challenge: _"Find the derivative of `x^3`?"_
+  - Problem: _"Find the derivative of `x^3`?"_
   - Submission:
     ```json 
     { "expression": "3x^2" }
