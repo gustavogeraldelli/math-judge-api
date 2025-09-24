@@ -1,9 +1,9 @@
 package dev.gustavo.math.controller.doc;
 
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
-import dev.gustavo.math.controller.dto.challenge.ChallengeRequestDTO;
-import dev.gustavo.math.controller.dto.challenge.ChallengeResponseDTO;
-import dev.gustavo.math.controller.dto.challenge.ChallengeSubmissionsResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemRequestDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,80 +15,80 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 
-@Tag(name = "Challenges", description = "Manage and view math challenges")
-public interface IChallengeController {
+@Tag(name = "Problems", description = "Manage and view math challenges")
+public interface ProblemController {
 
 
     @Operation(
-            summary = "List all challenges",
+            summary = "List all problems",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Challenges retrieved successfully",
+            @ApiResponse(responseCode = "200", description = "Problems retrieved successfully",
                     content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    PageableResponseDTO<ChallengeResponseDTO> findAll(Integer page, Integer size);
+    PageableResponseDTO<ProblemResponseDTO> findAll(Integer page, Integer size);
 
     @Operation(
-            summary = "Find challenge by ID",
+            summary = "Find problem by ID",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Challenge found",
-                    content = @Content(schema = @Schema(implementation = ChallengeResponseDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Problem found",
+                    content = @Content(schema = @Schema(implementation = ProblemResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
-            @ApiResponse(responseCode = "404", description = "Challenge not found",
+            @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    ChallengeResponseDTO findById(Long id);
+    ProblemResponseDTO findById(Long id);
 
     @Operation(
-            summary = "Create a new challenge (admin only)",
+            summary = "Create a new problem (admin only)",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Challenge created successfully",
-                    content = @Content(schema = @Schema(implementation = ChallengeResponseDTO.class))),
+            @ApiResponse(responseCode = "201", description = "Problem created successfully",
+                    content = @Content(schema = @Schema(implementation = ProblemResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    ChallengeResponseDTO create(ChallengeRequestDTO challengeCreateRequest);
+    ProblemResponseDTO create(ProblemRequestDTO problemCreateRequest);
 
     @Operation(
-            summary = "Update challenge (admin only)",
+            summary = "Update problem (admin only)",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Challenger updated successfully",
-                    content = @Content(schema = @Schema(implementation = ChallengeResponseDTO.class))),
+            @ApiResponse(responseCode = "200", description = "Problemr updated successfully",
+                    content = @Content(schema = @Schema(implementation = ProblemResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
-            @ApiResponse(responseCode = "404", description = "Challenge not found",
+            @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    ChallengeResponseDTO update(Long id, ChallengeRequestDTO challengeUpdateRequest);
+    ProblemResponseDTO update(Long id, ProblemRequestDTO problemUpdateRequest);
 
     @Operation(
-            summary = "Delete challenge (admin only)",
+            summary = "Delete problem (admin only)",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Challenge deleted successfully",
+            @ApiResponse(responseCode = "204", description = "Problem deleted successfully",
                     content = @Content),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
-            @ApiResponse(responseCode = "404", description = "Challenge not found",
+            @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     void delete(Long id);
 
     @Operation(
-            summary = "List all submissions for a challenge (admin only)",
+            summary = "List all submissions for a problem (admin only)",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
@@ -96,8 +96,8 @@ public interface IChallengeController {
                     content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
-            @ApiResponse(responseCode = "404", description = "Challenge not found",
+            @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    PageableResponseDTO<ChallengeSubmissionsResponseDTO> listChallengeSubmissions(Long id, Integer page, Integer size);
+    PageableResponseDTO<ProblemSubmissionsResponseDTO> listProblemSubmissions(Long id, Integer page, Integer size);
 }

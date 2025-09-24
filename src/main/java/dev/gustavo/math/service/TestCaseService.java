@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class TestCaseService {
 
     private final TestCaseRepository testCaseRepository;
-    private final ChallengeService challengeService;
+    private final ProblemService problemService;
 
     public TestCase findById(Long id) {
         return testCaseRepository.findById(id).orElseThrow(
@@ -19,16 +19,16 @@ public class TestCaseService {
     }
 
     public TestCase create(TestCase testCase) {
-        challengeService.existsById(testCase.getChallenge().getId());
+        problemService.existsById(testCase.getProblem().getId());
         return testCaseRepository.save(testCase);
     }
 
     public TestCase update(Long id, TestCase testCase) {
         var existingTestCase = findById(id);
 
-        if (testCase.getChallenge() != null) {
-            challengeService.existsById(testCase.getChallenge().getId());
-            existingTestCase.setChallenge(testCase.getChallenge());
+        if (testCase.getProblem() != null) {
+            problemService.existsById(testCase.getProblem().getId());
+            existingTestCase.setProblem(testCase.getProblem());
         }
 
         if (testCase.getInput() != null && !testCase.getInput().isBlank())

@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "Request body for creating or updating a Test Case")
 public record TestCaseRequestDTO(
-        @Schema(description = "ID of the challenge this test case belongs to", type = "long", example = "1")
-        @NotNull(message = "Challenge id is required")
-        Long challenge,
+        @Schema(description = "ID of the problem this test case belongs to", type = "long", example = "1")
+        @NotNull(message = "Problem id is required")
+        Long problem,
 
         @Schema(description = "Input value for the test case", type = "string", example = "10")
         @NotNull(message = "Input cannot be null")

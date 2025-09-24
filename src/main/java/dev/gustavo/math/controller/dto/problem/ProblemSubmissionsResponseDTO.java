@@ -1,4 +1,4 @@
-package dev.gustavo.math.controller.dto.challenge;
+package dev.gustavo.math.controller.dto.problem;
 
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Response body representing a submission in the context of a Challenge")
-public record ChallengeSubmissionsResponseDTO(
+@Schema(description = "Response body representing a submission in the context of a Problem")
+public record ProblemSubmissionsResponseDTO(
         @Schema(description = "User who made the submission")
         UserResponseDTO user,
 

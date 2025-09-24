@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 
-@Tag(name = "Submissions", description = "Submit and view challenge submissions")
+@Tag(name = "Submissions", description = "Submit and view problem submissions")
 public interface ISubmissionController {
 
     @Operation(

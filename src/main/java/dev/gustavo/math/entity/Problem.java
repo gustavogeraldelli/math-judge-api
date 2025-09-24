@@ -1,6 +1,6 @@
 package dev.gustavo.math.entity;
 
-import dev.gustavo.math.entity.enums.ChallengeDifficulty;
+import dev.gustavo.math.entity.enums.ProblemDifficulty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tb_challenges")
-public class Challenge {
+@Table(name = "tb_problems")
+public class Problem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,12 +29,12 @@ public class Challenge {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false, length = 64)
-    private ChallengeDifficulty difficulty;
+    private ProblemDifficulty difficulty;
 
-    @OneToMany(mappedBy = "challenge",  fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "problem",  fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private List<TestCase> testCases;
 
-    @OneToMany(mappedBy = "challenge", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private List<Submission> submissions;
 
 }

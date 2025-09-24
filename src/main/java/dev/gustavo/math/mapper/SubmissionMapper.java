@@ -1,6 +1,6 @@
 package dev.gustavo.math.mapper;
 
-import dev.gustavo.math.controller.dto.challenge.ChallengeSubmissionsResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
@@ -13,15 +13,15 @@ public interface SubmissionMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", constant = "PENDING")
-    @Mapping(target = "challenge.id", source = "challenge")
+    @Mapping(target = "problem.id", source = "problem")
     @Mapping(target = "user.id", source = "user")
     Submission toSubmission(SubmissionRequestDTO submission);
 
-    @Mapping(target = "challenge", source = "challenge.id")
+    @Mapping(target = "problem", source = "problem.id")
     SubmissionResponseDTO toSubmissionResponseDTO(Submission submission);
 
     UserSubmissionsResponseDTO toUserSubmissionsResponseDTO(Submission submission);
 
-    ChallengeSubmissionsResponseDTO toChallengeSubmissionsResponseDTO(Submission submission);
+    ProblemSubmissionsResponseDTO toProblemSubmissionsResponseDTO(Submission submission);
 
 }

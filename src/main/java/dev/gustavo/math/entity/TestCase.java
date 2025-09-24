@@ -19,8 +19,8 @@ public class TestCase {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "challenge_id")
-    private Challenge challenge;
+    @JoinColumn(name = "problem_id")
+    private Problem problem;
 
     @Column(nullable = false)
     private String input;

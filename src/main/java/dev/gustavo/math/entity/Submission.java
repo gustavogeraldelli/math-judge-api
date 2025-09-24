@@ -23,7 +23,7 @@ public class Submission {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Challenge challenge;
+    private Problem problem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;

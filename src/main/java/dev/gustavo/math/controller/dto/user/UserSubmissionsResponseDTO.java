@@ -1,15 +1,15 @@
 package dev.gustavo.math.controller.dto.user;
 
-import dev.gustavo.math.controller.dto.challenge.ChallengeResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "Response body representing a submission made by a user to a challenge")
+@Schema(description = "Response body representing a submission made by a user to a problem")
 public record UserSubmissionsResponseDTO(
-        @Schema(description = "Challenge related to the submission")
-        ChallengeResponseDTO challenge,
+        @Schema(description = "Problem related to the submission")
+        ProblemResponseDTO problem,
 
         @Schema(description = "Submitted mathematical expression", type = "string", example = "2x")
         String expression,

@@ -1,6 +1,6 @@
 package dev.gustavo.math.entity.enums;
 
-public enum ChallengeDifficulty {
+public enum ProblemDifficulty {
     EASY,
     MEDIUM,
     HARD

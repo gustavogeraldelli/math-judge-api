@@ -90,7 +90,7 @@ public interface IUserController {
     PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissions(UUID id, Integer page, Integer size);
 
     @Operation(
-            summary = "List submissions of a user in a specific challenge (self or admin)",
+            summary = "List submissions of a user in a specific problem (self or admin)",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
@@ -98,9 +98,9 @@ public interface IUserController {
                     content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
-            @ApiResponse(responseCode = "404", description = "User or challenge not found",
+            @ApiResponse(responseCode = "404", description = "User or problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInChallenge(UUID userId, Long challengeId, Integer page, Integer size);
+    PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInProblem(UUID userId, Long problemId, Integer page, Integer size);
 
 }

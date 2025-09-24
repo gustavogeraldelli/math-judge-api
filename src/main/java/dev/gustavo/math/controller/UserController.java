@@ -5,7 +5,7 @@ import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
-import dev.gustavo.math.mapper.ChallengeMapper;
+import dev.gustavo.math.mapper.ProblemMapper;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.mapper.UserMapper;
 import dev.gustavo.math.service.SubmissionService;
@@ -27,7 +27,7 @@ public class UserController implements IUserController {
     private final SubmissionService submissionService;
     private final UserMapper userMapper;
     private final SubmissionMapper submissionMapper;
-    private final ChallengeMapper challengeMapper;
+    private final ProblemMapper problemMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -74,15 +74,15 @@ public class UserController implements IUserController {
     }
 
     @PreAuthorize("#userId == authentication.principal or hasRole('ADMIN')")
-    @GetMapping("/{userId}/challenges/{challengeId}/submissions")
+    @GetMapping("/{userId}/problems/{problemId}/submissions")
     @ResponseStatus(HttpStatus.OK)
-    public PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInChallenge(@PathVariable UUID userId,
-                                                                                          @PathVariable Long challengeId,
+    public PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInProblem(@PathVariable UUID userId,
+                                                                                          @PathVariable Long problemId,
                                                                                           @RequestParam(defaultValue = "0") Integer page,
                                                                                           @RequestParam(defaultValue = "10") Integer size) {
-        var userSubmissions = submissionService.listFromUserInChallenge(
+        var userSubmissions = submissionService.listFromUserInProblem(
                         userMapper.toUser(userId),
-                        challengeMapper.toChallenge(challengeId),
+                        problemMapper.toProblem(problemId),
                         PageRequest.of(page, size))
                 .map(submissionMapper::toUserSubmissionsResponseDTO);
         return new PageableResponseDTO<>(userSubmissions);

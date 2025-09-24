@@ -1,6 +1,6 @@
 package dev.gustavo.math.service;
 
-import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.entity.Problem;
 import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.entity.User;
@@ -35,12 +35,12 @@ class SubmissionServiceTest {
     private UserService userService;
 
     @Mock
-    private ChallengeService challengeService;
+    private ProblemService problemService;
 
     @InjectMocks
     private SubmissionService submissionService;
 
-    private Challenge challenge;
+    private Problem problem;
     private Submission submission;
     private User user;
     private UUID userId;
@@ -53,13 +53,13 @@ class SubmissionServiceTest {
         user = new User();
         user.setId(userId);
 
-        challenge = new Challenge();
-        challenge.setId(challengeId);
+        problem = new Problem();
+        problem.setId(challengeId);
 
         submission = new Submission();
         submission.setId(submissionId);
         submission.setUser(user);
-        submission.setChallenge(challenge);
+        submission.setProblem(problem);
         submission.setExpression("2x");
     }
 
@@ -125,14 +125,14 @@ class SubmissionServiceTest {
         void listShouldReturnPagedSubmissionsInChallengeWhenChallengeExists() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
-            doNothing().when(challengeService).existsById(challengeId);
+            doNothing().when(problemService).existsById(challengeId);
             when(submissionRepository.findByChallengeIdWithUser(challengeId, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.listInChallenge(challenge, pageable);
+            Page<Submission> submissions = submissionService.listInChallenge(problem, pageable);
 
             assertFalse(submissions.getContent().isEmpty());
             assertEquals(1, submissions.getTotalElements());
-            verify(challengeService, times(1)).existsById(challengeId);
+            verify(problemService, times(1)).existsById(challengeId);
             verify(submissionRepository, times(1)).findByChallengeIdWithUser(challengeId, pageable);
         }
 
@@ -142,16 +142,16 @@ class SubmissionServiceTest {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doNothing().when(userService).existsById(userId);
-            doNothing().when(challengeService).existsById(challengeId);
-            when(submissionRepository.findByUserAndChallenge(user, challenge, pageable)).thenReturn(submissionPage);
+            doNothing().when(problemService).existsById(challengeId);
+            when(submissionRepository.findByUserAndChallenge(user, problem, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.listFromUserInChallenge(user, challenge, pageable);
+            Page<Submission> submissions = submissionService.listFromUserInChallenge(user, problem, pageable);
 
             assertFalse(submissions.isEmpty());
             assertEquals(1, submissions.getTotalElements());
             verify(userService, times(1)).existsById(userId);
-            verify(challengeService, times(1)).existsById(challengeId);
-            verify(submissionRepository, times(1)).findByUserAndChallenge(user, challenge, pageable);
+            verify(problemService, times(1)).existsById(challengeId);
+            verify(submissionRepository, times(1)).findByUserAndChallenge(user, problem, pageable);
         }
 
         @Test
@@ -170,9 +170,9 @@ class SubmissionServiceTest {
         void listInChallengeShouldThrowExceptionWhenChallengeNotFound() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
-            doThrow(new EntityNotFoundException("Challenge", challengeId.toString())).when(challengeService).existsById(challengeId);
+            doThrow(new EntityNotFoundException("Challenge", challengeId.toString())).when(problemService).existsById(challengeId);
 
-            assertThrows(EntityNotFoundException.class, () -> submissionService.listInChallenge(challenge, pageable));
+            assertThrows(EntityNotFoundException.class, () -> submissionService.listInChallenge(problem, pageable));
             verify(submissionRepository, never()).findByChallengeIdWithUser(anyLong(), any(PageRequest.class));
         }
     }
@@ -183,12 +183,12 @@ class SubmissionServiceTest {
         @Test
         @DisplayName("Should create and return submission with ACCEPTED status for correct expression")
         void createShouldReturnAcceptedWhenExpressionIsCorrect() {
-            TestCase tc1 = new TestCase(1L, challenge, "2", "4.0");
-            TestCase tc2 = new TestCase(2L, challenge, "5", "10.0");
-            challenge.setTestCases(Arrays.asList(tc1, tc2));
+            TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
+            TestCase tc2 = new TestCase(2L, problem, "5", "10.0");
+            problem.setTestCases(Arrays.asList(tc1, tc2));
 
             doNothing().when(userService).existsById(userId);
-            when(challengeService.findByIdWithTestCases(challengeId)).thenReturn(challenge);
+            when(problemService.findByIdWithTestCases(challengeId)).thenReturn(problem);
             when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
 
             Submission createdSubmission = submissionService.create(submission);
@@ -201,12 +201,12 @@ class SubmissionServiceTest {
         @Test
         @DisplayName("Should create and return submission with WRONG_ANSWER status for incorrect expression")
         void createShouldReturnWrongAnswerWhenExpressionIsIncorrect() {
-            TestCase tc1 = new TestCase(1L, challenge, "2", "4.0");
-            TestCase tc2 = new TestCase(2L, challenge, "5", "11.0");
-            challenge.setTestCases(Arrays.asList(tc1, tc2));
+            TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
+            TestCase tc2 = new TestCase(2L, problem, "5", "11.0");
+            problem.setTestCases(Arrays.asList(tc1, tc2));
 
             doNothing().when(userService).existsById(userId);
-            when(challengeService.findByIdWithTestCases(challengeId)).thenReturn(challenge);
+            when(problemService.findByIdWithTestCases(challengeId)).thenReturn(problem);
             when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
 
             Submission createdSubmission = submissionService.create(submission);
@@ -219,11 +219,11 @@ class SubmissionServiceTest {
         @DisplayName("Should create and return submission with WRONG_ANSWER for invalid expression syntax")
         void createShouldReturnWrongAnswer_forInvalidExpression() {
             submission.setExpression("2*x+");
-            TestCase tc1 = new TestCase(1L, challenge, "2", "4.0");
-            challenge.setTestCases(Collections.singletonList(tc1));
+            TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
+            problem.setTestCases(Collections.singletonList(tc1));
 
             doNothing().when(userService).existsById(userId);
-            when(challengeService.findByIdWithTestCases(challengeId)).thenReturn(challenge);
+            when(problemService.findByIdWithTestCases(challengeId)).thenReturn(problem);
             when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
 
             Submission createdSubmission = submissionService.create(submission);
@@ -237,7 +237,7 @@ class SubmissionServiceTest {
             doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
 
             assertThrows(EntityNotFoundException.class, () -> submissionService.create(submission));
-            verify(challengeService, never()).findByIdWithTestCases(anyLong());
+            verify(problemService, never()).findByIdWithTestCases(anyLong());
             verify(submissionRepository, never()).save(any(Submission.class));
         }
     }

@@ -1,6 +1,6 @@
 package dev.gustavo.math.service;
 
-import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.entity.Problem;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.repository.TestCaseRepository;
@@ -24,7 +24,7 @@ class TestCaseServiceTest {
     private TestCaseRepository testCaseRepository;
 
     @Mock
-    private ChallengeService challengeService;
+    private ProblemService problemService;
 
     @InjectMocks
     private TestCaseService testCaseService;
@@ -33,12 +33,12 @@ class TestCaseServiceTest {
 
     @BeforeEach
     void setUp() {
-        Challenge challenge = new Challenge();
-        challenge.setId(1L);
+        Problem problem = new Problem();
+        problem.setId(1L);
 
         testCase = new TestCase();
         testCase.setId(1L);
-        testCase.setChallenge(challenge);
+        testCase.setProblem(problem);
         testCase.setInput("2");
         testCase.setExpectedOutput("4");
     }
@@ -73,21 +73,21 @@ class TestCaseServiceTest {
         @Test
         @DisplayName("Should create a new test case successfully")
         void createShouldSaveAndReturnTestCaseWhenChallengeExists() {
-            doNothing().when(challengeService).existsById(1L);
+            doNothing().when(problemService).existsById(1L);
             when(testCaseRepository.save(any(TestCase.class))).thenReturn(testCase);
 
             TestCase createdTestCase = testCaseService.create(testCase);
 
             assertNotNull(createdTestCase);
             assertEquals("2", createdTestCase.getInput());
-            verify(challengeService, times(1)).existsById(1L);
+            verify(problemService, times(1)).existsById(1L);
             verify(testCaseRepository, times(1)).save(testCase);
         }
 
         @Test
         @DisplayName("Should throw EntityNotFoundException when the associated challenge does not exist")
         void createShouldThrowExceptionWhenChallengeNotFound() {
-            doThrow(new EntityNotFoundException("Challenge", "1")).when(challengeService).existsById(1L);
+            doThrow(new EntityNotFoundException("Challenge", "1")).when(problemService).existsById(1L);
 
             assertThrows(EntityNotFoundException.class, () -> testCaseService.create(testCase));
             verify(testCaseRepository, never()).save(any(TestCase.class));

@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 
 @Schema(description = "Response body representing a Submission")
 public record SubmissionResponseDTO(
-        @Schema(description = "ID of the challenge being solved", type = "long", example = "1")
-        Long challenge,
+        @Schema(description = "ID of the problem being solved", type = "long", example = "1")
+        Long problem,
 
         @Schema(description = "Result status of the submission", example = "ACCEPTED")
         SubmissionStatus status,

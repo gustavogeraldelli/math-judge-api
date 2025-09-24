@@ -20,7 +20,7 @@ public class SwaggerConfig {
         Info info = new Info();
         info.title("Math Judge API");
         info.version("1.0");
-        info.description("REST API for managing challenges, test cases and submissions in a Math Judge platform");
+        info.description("REST API for managing problems, test cases and submissions in a Math Judge platform");
         return new OpenAPI().info(info);
     }
 }

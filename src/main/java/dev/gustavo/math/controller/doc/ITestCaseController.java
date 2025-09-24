@@ -1,6 +1,6 @@
 package dev.gustavo.math.controller.doc;
 
-import dev.gustavo.math.controller.dto.challenge.ChallengeResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Map;
 
-@Tag(name = "Test Cases", description = "Manage test cases for challenges (admin only)")
+@Tag(name = "Test Cases", description = "Manage test cases for problems (admin only)")
 public interface ITestCaseController {
 
     @Operation(
@@ -37,7 +37,7 @@ public interface ITestCaseController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Test case updated successfully",
-                    content = @Content(schema = @Schema(implementation = ChallengeResponseDTO.class))),
+                    content = @Content(schema = @Schema(implementation = ProblemResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Test case not found",

@@ -1,6 +1,6 @@
 package dev.gustavo.math.service;
 
-import dev.gustavo.math.entity.Challenge;
+import dev.gustavo.math.entity.Problem;
 import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.entity.User;
@@ -23,7 +23,7 @@ public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;
     private final UserService userService;
-    private final ChallengeService challengeService;
+    private final ProblemService problemService;
 
     public Page<Submission> findAll(Pageable pageable) {
         return submissionRepository.findAll(pageable);
@@ -37,9 +37,9 @@ public class SubmissionService {
     public Submission create(Submission submission) {
         userService.existsById(submission.getUser().getId());
 
-        var challenge = challengeService.findByIdWithTestCases(submission.getChallenge().getId());
+        var problem = problemService.findByIdWithTestCases(submission.getProblem().getId());
 
-        judgeSubmission(challenge, submission);
+        judgeSubmission(problem, submission);
 
         return submissionRepository.save(submission);
     }
@@ -50,11 +50,11 @@ public class SubmissionService {
         submissionRepository.deleteById(id);
     }
 
-    private void judgeSubmission(Challenge challenge, Submission submission) {
-        if (challenge.getTestCases().isEmpty())
+    private void judgeSubmission(Problem problem, Submission submission) {
+        if (problem.getTestCases().isEmpty())
             return;
 
-        for (TestCase tc : challenge.getTestCases()) {
+        for (TestCase tc : problem.getTestCases()) {
             try {
                 Set<String> variables = extractVariables(submission.getExpression());
 
@@ -96,18 +96,18 @@ public class SubmissionService {
 
     public Page<Submission> listFromUser(User user, Pageable pageable) {
         userService.existsById(user.getId());
-        return submissionRepository.findByUserIdWithChallenge(user.getId(), pageable);
+        return submissionRepository.findByUserIdWithProblem(user.getId(), pageable);
     }
 
-    public Page<Submission> listInChallenge(Challenge challenge, Pageable pageable) {
-        challengeService.existsById(challenge.getId());
-        return submissionRepository.findByChallengeIdWithUser(challenge.getId(), pageable);
+    public Page<Submission> listInProblem(Problem problem, Pageable pageable) {
+        problemService.existsById(problem.getId());
+        return submissionRepository.findByProblemIdWithUser(problem.getId(), pageable);
     }
 
-    public Page<Submission> listFromUserInChallenge(User user, Challenge challenge, Pageable pageable) {
+    public Page<Submission> listFromUserInProblem(User user, Problem problem, Pageable pageable) {
         userService.existsById(user.getId());
-        challengeService.existsById(challenge.getId());
-        return submissionRepository.findByUserAndChallenge(user, challenge, pageable);
+        problemService.existsById(problem.getId());
+        return submissionRepository.findByUserAndProblem(user, problem, pageable);
     }
 
 }
