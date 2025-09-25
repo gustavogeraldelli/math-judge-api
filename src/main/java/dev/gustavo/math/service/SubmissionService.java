@@ -24,6 +24,7 @@ public class SubmissionService {
     private final SubmissionRepository submissionRepository;
     private final UserService userService;
     private final ProblemService problemService;
+    private final JudgeService judgeService;
 
     public Page<Submission> findAll(Pageable pageable) {
         return submissionRepository.findAll(pageable);
@@ -39,7 +40,7 @@ public class SubmissionService {
 
         var problem = problemService.findByIdWithTestCases(submission.getProblem().getId());
 
-        judgeSubmission(problem, submission);
+        judgeService.judge(problem, submission);
 
         return submissionRepository.save(submission);
     }
@@ -48,50 +49,6 @@ public class SubmissionService {
         if (!submissionRepository.existsById(id))
             throw new EntityNotFoundException("Submission", id.toString());
         submissionRepository.deleteById(id);
-    }
-
-    private void judgeSubmission(Problem problem, Submission submission) {
-        if (problem.getTestCases().isEmpty())
-            return;
-
-        for (TestCase tc : problem.getTestCases()) {
-            try {
-                Set<String> variables = extractVariables(submission.getAnswer());
-
-                var exprBuilder = new ExpressionBuilder(submission.getAnswer());
-                // no variable or only x for now
-                for (String variable : variables) {
-                    exprBuilder.variable(variable);
-                }
-                Expression expression = exprBuilder.build();
-                for (String variable : variables) {
-                    double variableValues = Double.parseDouble(tc.getVariableValues());
-                    expression.setVariable(variable, variableValues);
-                }
-
-                double result = expression.evaluate();
-                double expectedAnswer = Double.parseDouble(tc.getExpectedAnswer());
-
-                if (Math.abs(result - expectedAnswer) > 1e-9) {
-                    submission.setStatus(SubmissionStatus.WRONG_ANSWER);
-                    return;
-                }
-            }
-            catch (Exception e) {
-                //
-                submission.setStatus(SubmissionStatus.WRONG_ANSWER);
-                return;
-            }
-        }
-        submission.setStatus(SubmissionStatus.ACCEPTED);
-    }
-
-    private Set<String> extractVariables(String expression) {
-        Set<String> vars = new HashSet<>();
-        if (expression.contains("x")) {
-            vars.add("x");
-        }
-        return vars;
     }
 
     public Page<Submission> listFromUser(User user, Pageable pageable) {
