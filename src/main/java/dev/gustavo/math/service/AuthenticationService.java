@@ -3,8 +3,6 @@ package dev.gustavo.math.service;
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.InvalidLoginException;
 import dev.gustavo.math.infra.security.TokenService;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
