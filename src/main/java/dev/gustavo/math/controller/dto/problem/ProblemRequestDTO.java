@@ -1,6 +1,7 @@
 package dev.gustavo.math.controller.dto.problem;
 
 import dev.gustavo.math.entity.enums.ProblemDifficulty;
+import dev.gustavo.math.entity.enums.ProblemType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +20,10 @@ public record ProblemRequestDTO(
 
         @Schema(description = "Difficulty level (EASY, MEDIUM or HARD)", example = "EASY")
         @NotNull(message = "Difficulty is required")
-        ProblemDifficulty difficulty
+        ProblemDifficulty difficulty,
+
+        @Schema(description = "Problem type (NUMERIC or EXPRESSION)", example = "NUMERIC")
+        @NotNull(message = "Type is required")
+        ProblemType type
 ) {
 }

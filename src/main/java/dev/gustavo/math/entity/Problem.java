@@ -1,6 +1,7 @@
 package dev.gustavo.math.entity;
 
 import dev.gustavo.math.entity.enums.ProblemDifficulty;
+import dev.gustavo.math.entity.enums.ProblemType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +31,10 @@ public class Problem {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false, length = 64)
     private ProblemDifficulty difficulty;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false, length = 32)
+    private ProblemType type;
 
     @OneToMany(mappedBy = "problem",  fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private List<TestCase> testCases;
