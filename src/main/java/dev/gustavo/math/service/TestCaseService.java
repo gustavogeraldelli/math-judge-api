@@ -31,11 +31,11 @@ public class TestCaseService {
             existingTestCase.setProblem(testCase.getProblem());
         }
 
-        if (testCase.getInput() != null && !testCase.getInput().isBlank())
-            existingTestCase.setInput(testCase.getInput());
+        if (testCase.getVariableValues() != null && !testCase.getVariableValues().isBlank())
+            existingTestCase.setVariableValues(testCase.getVariableValues());
 
-        if (testCase.getExpectedOutput() != null && !testCase.getExpectedOutput().isBlank())
-            existingTestCase.setExpectedOutput(testCase.getExpectedOutput());
+        if (testCase.getExpectedAnswer() != null && !testCase.getExpectedAnswer().isBlank())
+            existingTestCase.setExpectedAnswer(testCase.getExpectedAnswer());
 
         return testCaseRepository.save(existingTestCase);
     }

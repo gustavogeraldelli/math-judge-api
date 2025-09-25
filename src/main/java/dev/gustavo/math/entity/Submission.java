@@ -29,7 +29,7 @@ public class Submission {
     private User user;
 
     @Column(nullable = false, updatable = false)
-    private String expression;
+    private String answer;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)

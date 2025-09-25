@@ -11,8 +11,8 @@ public record ProblemSubmissionsResponseDTO(
         @Schema(description = "User who made the submission")
         UserResponseDTO user,
 
-        @Schema(description = "Submitted mathematical expression", type = "string", example = "2x")
-        String expression,
+        @Schema(description = "Submitted answer", type = "string", example = "2x")
+        String answer,
 
         @Schema(description = "Status of the submission", example = "ACCEPTED")
         SubmissionStatus status,

@@ -16,8 +16,8 @@ public record SubmissionRequestDTO(
         @NotNull(message = "User id is required")
         UUID user,
 
-        @Schema(description = "Submitted mathematical expression", example = "2x")
-        @NotBlank(message = "Expression is required")
-        String expression
+        @Schema(description = "Submitted mathematical answer", example = "2x")
+        @NotBlank(message = "Answer is required")
+        String answer
 ) {
 }

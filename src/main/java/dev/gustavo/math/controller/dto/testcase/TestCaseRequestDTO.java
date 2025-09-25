@@ -10,12 +10,12 @@ public record TestCaseRequestDTO(
         @NotNull(message = "Problem id is required")
         Long problem,
 
-        @Schema(description = "Input value for the test case", type = "string", example = "10")
-        @NotNull(message = "Input cannot be null")
-        String input,
+        @Schema(description = "Variable values value for the test case", type = "string", example = "10")
+        @NotNull(message = "Variable values cannot be null")
+        String variableValues,
 
         @Schema(description = "Expected output for the test case", type = "string", example = "20")
         @NotBlank(message = "Expected output is required")
-        String expectedOutput
+        String expectedAnswer
 ) {
 }

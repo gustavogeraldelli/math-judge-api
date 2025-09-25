@@ -11,10 +11,10 @@ public record UserSubmissionsResponseDTO(
         @Schema(description = "Problem related to the submission")
         ProblemResponseDTO problem,
 
-        @Schema(description = "Submitted mathematical expression", type = "string", example = "2x")
-        String expression,
+        @Schema(description = "Submitted answer", type = "string", example = "2x")
+        String answer,
 
-        @Schema(description = "Result status of the submission", example = "ACCEPTED")
+        @Schema(description = "Result status", example = "ACCEPTED")
         SubmissionStatus status,
 
         @Schema(description = "Timestamp of when the submission was made", type = "timestamp", example = "2025-08-15T14:30:00")

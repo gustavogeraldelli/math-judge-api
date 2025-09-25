@@ -70,7 +70,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
     {
       "problem": 1,
       "user": "user-uuid",
-      "expression": "2x"
+      "answer": "2x"
     }
     ```
   - Response
@@ -92,19 +92,19 @@ Each problem describes a mathematical problem. Users must submit a solution that
 ### 1. Numeric submission
 The user must find the numeric value of one or more variables that satisfy an equation.
 - Example
-  - Problem: _"What is the solution of the equation `2x + 6 = 10`?"_
+  - Problem: _"What is the solution for the equation `2x + 6 = 10`?"_
   - Submission:
     ```json 
-    { "expression": "2" }
+    { "answer": "2" }
     ```
     
 ### 2. Expression submission
 The user must provide a mathematical expression that matches the problem statement.
 - Example
-  - Problem: _"Find the derivative of `x^3`?"_
+  - Problem: _"Find the derivative of `x^3`"_
   - Submission:
     ```json 
-    { "expression": "3x^2" }
+    { "answer": "3x^2" }
     ```
 ## Project Structure
 ```

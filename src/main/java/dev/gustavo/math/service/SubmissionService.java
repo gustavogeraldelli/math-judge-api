@@ -56,23 +56,23 @@ public class SubmissionService {
 
         for (TestCase tc : problem.getTestCases()) {
             try {
-                Set<String> variables = extractVariables(submission.getExpression());
+                Set<String> variables = extractVariables(submission.getAnswer());
 
-                var exprBuilder = new ExpressionBuilder(submission.getExpression());
+                var exprBuilder = new ExpressionBuilder(submission.getAnswer());
                 // no variable or only x for now
                 for (String variable : variables) {
                     exprBuilder.variable(variable);
                 }
                 Expression expression = exprBuilder.build();
                 for (String variable : variables) {
-                    double input = Double.parseDouble(tc.getInput());
-                    expression.setVariable(variable, input);
+                    double variableValues = Double.parseDouble(tc.getVariableValues());
+                    expression.setVariable(variable, variableValues);
                 }
 
                 double result = expression.evaluate();
-                double expectedOutput = Double.parseDouble(tc.getExpectedOutput());
+                double expectedAnswer = Double.parseDouble(tc.getExpectedAnswer());
 
-                if (Math.abs(result - expectedOutput) > 1e-9) {
+                if (Math.abs(result - expectedAnswer) > 1e-9) {
                     submission.setStatus(SubmissionStatus.WRONG_ANSWER);
                     return;
                 }

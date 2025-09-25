@@ -22,10 +22,10 @@ public class TestCase {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @Column(nullable = false)
-    private String input;
+    @Column(nullable = false, name = "variable_names")
+    private String variableValues;
 
-    @Column(nullable = false, name = "expected_output")
-    private String expectedOutput;
+    @Column(nullable = false, name = "expected_answer")
+    private String expectedAnswer;
 
 }
