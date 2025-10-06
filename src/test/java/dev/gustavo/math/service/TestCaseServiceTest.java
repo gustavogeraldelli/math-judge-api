@@ -39,8 +39,8 @@ class TestCaseServiceTest {
         testCase = new TestCase();
         testCase.setId(1L);
         testCase.setProblem(problem);
-        testCase.setInput("2");
-        testCase.setExpectedOutput("4");
+        testCase.setVariableValues("2");
+        testCase.setExpectedAnswer("4");
     }
 
     @Nested
@@ -79,7 +79,7 @@ class TestCaseServiceTest {
             TestCase createdTestCase = testCaseService.create(testCase);
 
             assertNotNull(createdTestCase);
-            assertEquals("2", createdTestCase.getInput());
+            assertEquals("2", createdTestCase.getVariableValues());
             verify(problemService, times(1)).existsById(1L);
             verify(testCaseRepository, times(1)).save(testCase);
         }
@@ -101,8 +101,8 @@ class TestCaseServiceTest {
         @DisplayName("Should update test case successfully")
         void updateShouldUpdateAndReturnTestCaseWhenSuccessful() {
             TestCase updatedDetails = new TestCase();
-            updatedDetails.setInput("3");
-            updatedDetails.setExpectedOutput("9");
+            updatedDetails.setVariableValues("3");
+            updatedDetails.setExpectedAnswer("9");
 
             when(testCaseRepository.findById(1L)).thenReturn(Optional.of(testCase));
             when(testCaseRepository.save(any(TestCase.class))).thenReturn(testCase);
@@ -110,8 +110,8 @@ class TestCaseServiceTest {
             TestCase updatedTestCase = testCaseService.update(1L, updatedDetails);
 
             assertNotNull(updatedTestCase);
-            assertEquals("3", updatedTestCase.getInput());
-            assertEquals("9", updatedTestCase.getExpectedOutput());
+            assertEquals("3", updatedTestCase.getVariableValues());
+            assertEquals("9", updatedTestCase.getExpectedAnswer());
             verify(testCaseRepository, times(1)).findById(1L);
             verify(testCaseRepository, times(1)).save(testCase);
         }

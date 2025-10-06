@@ -2,6 +2,7 @@ package dev.gustavo.math.service;
 
 import dev.gustavo.math.entity.Problem;
 import dev.gustavo.math.entity.enums.ProblemDifficulty;
+import dev.gustavo.math.entity.enums.ProblemType;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.repository.ProblemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,31 +38,32 @@ class ProblemServiceTest {
     void setUp() {
         problem = new Problem();
         problem.setId(1L);
-        problem.setTitle("Derivative Challenge");
+        problem.setTitle("Derivative Problem");
         problem.setDescription("Find the derivative of x^2");
         problem.setDifficulty(ProblemDifficulty.EASY);
+        problem.setType(ProblemType.EXPRESSION);
     }
 
     @Nested
-    @DisplayName("Find Challenges")
+    @DisplayName("Find Problems")
     class FindProblem {
         @Test
-        @DisplayName("Should return a paginated list of challenges")
-        void findAllShouldReturnPaginatedChallenges() {
+        @DisplayName("Should return a paginated list of problems")
+        void findAllShouldReturnPaginatedProblems() {
             PageRequest pageable = PageRequest.of(0, 10);
-            Page<Problem> challengePage = new PageImpl<>(List.of(problem));
-            when(problemRepository.findAll(pageable)).thenReturn(challengePage);
+            Page<Problem> problemPage = new PageImpl<>(List.of(problem));
+            when(problemRepository.findAll(pageable)).thenReturn(problemPage);
 
-            Page<Problem> challenges = problemService.findAll(pageable);
+            Page<Problem> problems = problemService.findAll(pageable);
 
-            assertFalse(challenges.getContent().isEmpty());
-            assertEquals(1, challenges.getTotalElements());
+            assertFalse(problems.getContent().isEmpty());
+            assertEquals(1, problems.getTotalElements());
             verify(problemRepository, times(1)).findAll(pageable);
         }
 
         @Test
-        @DisplayName("Should find a challenge by its ID successfully")
-        void findByIdShouldReturnChallengeWhenFound() {
+        @DisplayName("Should return a problem when ID exists")
+        void findByIdShouldReturnProblemWhenIdExists() {
             when(problemRepository.findById(1L)).thenReturn(Optional.of(problem));
 
             Problem foundProblem = problemService.findById(1L);
@@ -72,8 +74,8 @@ class ProblemServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw EntityNotFoundException when challenge does not exist")
-        void findByIdShouldThrowExceptionWhenNotFound() {
+        @DisplayName("Should throw EntityNotFoundException when ID does not exist")
+        void findByIdShouldThrowEntityNotFoundExceptionWhenIdDoesNotExist() {
             when(problemRepository.findById(1L)).thenReturn(Optional.empty());
 
             assertThrows(EntityNotFoundException.class, () -> problemService.findById(1L));
@@ -81,29 +83,29 @@ class ProblemServiceTest {
     }
 
     @Nested
-    @DisplayName("Create Challenge")
+    @DisplayName("Create Problem")
     class CreateProblem {
         @Test
-        @DisplayName("Should create a new challenge successfully")
-        void createShouldSaveAndReturnChallenge() {
+        @DisplayName("Should save and return a new problem with valid data")
+        void createShouldSaveAndReturnProblemWhenDataIsValid() {
             when(problemRepository.save(any(Problem.class))).thenReturn(problem);
 
             Problem createdProblem = problemService.create(problem);
 
             assertNotNull(createdProblem);
-            assertEquals("Derivative Challenge", createdProblem.getTitle());
+            assertEquals("Derivative Problem", createdProblem.getTitle());
             verify(problemRepository, times(1)).save(problem);
         }
     }
 
     @Nested
-    @DisplayName("Update Challenge")
+    @DisplayName("Update Problem")
     class UpdateProblem {
         @Test
-        @DisplayName("Should update challenge details successfully")
-        void updateShouldUpdateAndReturnChallengeWhenSuccessful() {
+        @DisplayName("Should update and return problem when ID exists")
+        void updateShouldUpdateAndReturnProblemWhenIdExists() {
             Problem updatedDetails = new Problem();
-            updatedDetails.setTitle("Advanced Derivative Challenge");
+            updatedDetails.setTitle("Advanced Derivative Problem");
             updatedDetails.setDifficulty(ProblemDifficulty.MEDIUM);
 
             when(problemRepository.findById(1L)).thenReturn(Optional.of(problem));
@@ -112,15 +114,15 @@ class ProblemServiceTest {
             Problem updatedProblem = problemService.update(1L, updatedDetails);
 
             assertNotNull(updatedProblem);
-            assertEquals("Advanced Derivative Challenge", updatedProblem.getTitle());
+            assertEquals("Advanced Derivative Problem", updatedProblem.getTitle());
             assertEquals(ProblemDifficulty.MEDIUM, updatedProblem.getDifficulty());
             verify(problemRepository, times(1)).findById(1L);
             verify(problemRepository, times(1)).save(problem);
         }
 
         @Test
-        @DisplayName("Should throw EntityNotFoundException when challenge does not exist")
-        void updateShouldThrowExceptionWhenChallengeNotFound() {
+        @DisplayName("Should throw EntityNotFoundException when ID does not exist")
+        void updateShouldThrowExceptionOnUpdateWhenIdDoesNotExist() {
             Problem updatedDetails = new Problem();
             when(problemRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -130,11 +132,11 @@ class ProblemServiceTest {
     }
 
     @Nested
-    @DisplayName("Delete Challenge")
+    @DisplayName("Delete Problem")
     class DeleteProblem {
         @Test
-        @DisplayName("Should delete a challenge successfully")
-        void deleteShouldRemoveChallengeWhenChallengeExists() {
+        @DisplayName("Should delete problem when ID exists")
+        void deleteShouldDeleteProblemWhenIdExists() {
             when(problemRepository.existsById(1L)).thenReturn(true);
             doNothing().when(problemRepository).deleteById(1L);
 
@@ -145,8 +147,8 @@ class ProblemServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw EntityNotFoundException when challenge does not exist")
-        void deleteShouldThrowExceptionWhenChallengeNotFound() {
+        @DisplayName("Should throw EntityNotFoundException when ID does not exist")
+        void deleteShouldThrowExceptionOnDeleteWhenIdDoesNotExist() {
             when(problemRepository.existsById(1L)).thenReturn(false);
 
             assertThrows(EntityNotFoundException.class, () -> problemService.delete(1L));

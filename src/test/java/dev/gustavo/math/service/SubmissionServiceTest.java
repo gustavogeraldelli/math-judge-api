@@ -37,6 +37,9 @@ class SubmissionServiceTest {
     @Mock
     private ProblemService problemService;
 
+    @Mock
+    private JudgeService judgeService;
+
     @InjectMocks
     private SubmissionService submissionService;
 
@@ -44,7 +47,7 @@ class SubmissionServiceTest {
     private Submission submission;
     private User user;
     private UUID userId;
-    private Long challengeId = 1L;
+    private Long problemId = 1L;
     private Long submissionId = 1L;
 
     @BeforeEach
@@ -54,13 +57,13 @@ class SubmissionServiceTest {
         user.setId(userId);
 
         problem = new Problem();
-        problem.setId(challengeId);
+        problem.setId(problemId);
 
         submission = new Submission();
         submission.setId(submissionId);
         submission.setUser(user);
         submission.setProblem(problem);
-        submission.setExpression("2x");
+        submission.setAnswer("2x");
     }
 
     @Nested
@@ -110,48 +113,48 @@ class SubmissionServiceTest {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doNothing().when(userService).existsById(userId);
-            when(submissionRepository.findByUserIdWithChallenge(userId, pageable)).thenReturn(submissionPage);
+            when(submissionRepository.findByUserIdWithProblem(userId, pageable)).thenReturn(submissionPage);
 
             Page<Submission> submissions = submissionService.listFromUser(user, pageable);
 
             assertFalse(submissions.getContent().isEmpty());
             assertEquals(1, submissions.getTotalElements());
             verify(userService, times(1)).existsById(userId);
-            verify(submissionRepository, times(1)).findByUserIdWithChallenge(userId, pageable);
+            verify(submissionRepository, times(1)).findByUserIdWithProblem(userId, pageable);
         }
 
         @Test
-        @DisplayName("Should return a paginated list of all submissions in a challenge")
-        void listShouldReturnPagedSubmissionsInChallengeWhenChallengeExists() {
+        @DisplayName("Should return a paginated list of all submissions in a problem")
+        void listShouldReturnPagedSubmissionsInProblemWhenProblemExists() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
-            doNothing().when(problemService).existsById(challengeId);
-            when(submissionRepository.findByChallengeIdWithUser(challengeId, pageable)).thenReturn(submissionPage);
+            doNothing().when(problemService).existsById(problemId);
+            when(submissionRepository.findByProblemIdWithUser(problemId, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.listInChallenge(problem, pageable);
+            Page<Submission> submissions = submissionService.listInProblem(problem, pageable);
 
             assertFalse(submissions.getContent().isEmpty());
             assertEquals(1, submissions.getTotalElements());
-            verify(problemService, times(1)).existsById(challengeId);
-            verify(submissionRepository, times(1)).findByChallengeIdWithUser(challengeId, pageable);
+            verify(problemService, times(1)).existsById(problemId);
+            verify(submissionRepository, times(1)).findByProblemIdWithUser(problemId, pageable);
         }
 
         @Test
-        @DisplayName("Should return a paginated list of all submissions from a user in a challenge")
-        void listShouldReturnPagedSubmissionsFromUserInChallengeWhenBothExists() {
+        @DisplayName("Should return a paginated list of all submissions from a user in a problem")
+        void listShouldReturnPagedSubmissionsFromUserInProblemWhenBothExists() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doNothing().when(userService).existsById(userId);
-            doNothing().when(problemService).existsById(challengeId);
-            when(submissionRepository.findByUserAndChallenge(user, problem, pageable)).thenReturn(submissionPage);
+            doNothing().when(problemService).existsById(problemId);
+            when(submissionRepository.findByUserAndProblem(user, problem, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.listFromUserInChallenge(user, problem, pageable);
+            Page<Submission> submissions = submissionService.listFromUserInProblem(user, problem, pageable);
 
             assertFalse(submissions.isEmpty());
             assertEquals(1, submissions.getTotalElements());
             verify(userService, times(1)).existsById(userId);
-            verify(problemService, times(1)).existsById(challengeId);
-            verify(submissionRepository, times(1)).findByUserAndChallenge(user, problem, pageable);
+            verify(problemService, times(1)).existsById(problemId);
+            verify(submissionRepository, times(1)).findByUserAndProblem(user, problem, pageable);
         }
 
         @Test
@@ -162,18 +165,18 @@ class SubmissionServiceTest {
             doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
 
             assertThrows(EntityNotFoundException.class, () -> submissionService.listFromUser(user, pageable));
-            verify(submissionRepository, never()).findByUserIdWithChallenge(any(UUID.class), any(PageRequest.class));
+            verify(submissionRepository, never()).findByUserIdWithProblem(any(UUID.class), any(PageRequest.class));
         }
 
         @Test
-        @DisplayName("Should throw EntityNotFoundException when challenge does not exist")
-        void listInChallengeShouldThrowExceptionWhenChallengeNotFound() {
+        @DisplayName("Should throw EntityNotFoundException when problem does not exist")
+        void listInProblemShouldThrowExceptionWhenProblemNotFound() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
-            doThrow(new EntityNotFoundException("Challenge", challengeId.toString())).when(problemService).existsById(challengeId);
+            doThrow(new EntityNotFoundException("Problem", problemId.toString())).when(problemService).existsById(problemId);
 
-            assertThrows(EntityNotFoundException.class, () -> submissionService.listInChallenge(problem, pageable));
-            verify(submissionRepository, never()).findByChallengeIdWithUser(anyLong(), any(PageRequest.class));
+            assertThrows(EntityNotFoundException.class, () -> submissionService.listInProblem(problem, pageable));
+            verify(submissionRepository, never()).findByProblemIdWithUser(anyLong(), any(PageRequest.class));
         }
     }
 
@@ -181,54 +184,75 @@ class SubmissionServiceTest {
     @DisplayName("Create Submission")
     class CreateSubmission {
         @Test
-        @DisplayName("Should create and return submission with ACCEPTED status for correct expression")
-        void createShouldReturnAcceptedWhenExpressionIsCorrect() {
+        @DisplayName("Should create and return submission with ACCEPTED status for correct answer")
+        void createShouldReturnAcceptedWhenAnswerIsCorrect() {
             TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
             TestCase tc2 = new TestCase(2L, problem, "5", "10.0");
             problem.setTestCases(Arrays.asList(tc1, tc2));
 
             doNothing().when(userService).existsById(userId);
-            when(problemService.findByIdWithTestCases(challengeId)).thenReturn(problem);
+            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
             when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+            doAnswer(call -> {
+                Submission sub = call.getArgument(1);
+                sub.setStatus(SubmissionStatus.ACCEPTED);
+                return null;
+            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
 
             Submission createdSubmission = submissionService.create(submission);
 
             assertNotNull(createdSubmission);
             assertEquals(SubmissionStatus.ACCEPTED, createdSubmission.getStatus());
             verify(submissionRepository, times(1)).save(submission);
+            verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
         }
 
         @Test
-        @DisplayName("Should create and return submission with WRONG_ANSWER status for incorrect expression")
-        void createShouldReturnWrongAnswerWhenExpressionIsIncorrect() {
+        @DisplayName("Should create and return submission with WRONG_ANSWER status for incorrect answer")
+        void createShouldReturnWrongAnswerWhenAnswerIsIncorrect() {
             TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
             TestCase tc2 = new TestCase(2L, problem, "5", "11.0");
             problem.setTestCases(Arrays.asList(tc1, tc2));
 
             doNothing().when(userService).existsById(userId);
-            when(problemService.findByIdWithTestCases(challengeId)).thenReturn(problem);
+            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
             when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+            doAnswer(call -> {
+                Submission sub = call.getArgument(1);
+                sub.setStatus(SubmissionStatus.WRONG_ANSWER);
+                return null;
+            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
 
             Submission createdSubmission = submissionService.create(submission);
 
             assertNotNull(createdSubmission);
             assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
+            verify(submissionRepository, times(1)).save(submission);
+            verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
         }
 
         @Test
-        @DisplayName("Should create and return submission with WRONG_ANSWER for invalid expression syntax")
-        void createShouldReturnWrongAnswer_forInvalidExpression() {
-            submission.setExpression("2*x+");
+        @DisplayName("Should create and return submission with WRONG_ANSWER for invalid answer syntax")
+        void createShouldReturnWrongAnswer_forInvalidAnswer() {
+            submission.setAnswer("2*x+");
             TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
             problem.setTestCases(Collections.singletonList(tc1));
 
             doNothing().when(userService).existsById(userId);
-            when(problemService.findByIdWithTestCases(challengeId)).thenReturn(problem);
+            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
             when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+            doAnswer(call -> {
+                Submission sub = call.getArgument(1);
+                sub.setStatus(SubmissionStatus.WRONG_ANSWER);
+                return null;
+            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
 
             Submission createdSubmission = submissionService.create(submission);
 
+            assertNotNull(createdSubmission);
             assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
+            verify(submissionRepository, times(1)).save(submission);
+            verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
         }
 
         @Test
