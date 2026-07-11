@@ -20,7 +20,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,8 +50,8 @@ class SubmissionServiceTest {
     private Submission submission;
     private User user;
     private UUID userId;
-    private Long problemId = 1L;
-    private Long submissionId = 1L;
+    private final Long problemId = 1L;
+    private final Long submissionId = 1L;
 
     @BeforeEach
     void setUp() {
@@ -197,7 +199,6 @@ class SubmissionServiceTest {
         @DisplayName("Should throw EntityNotFoundException when user does not exist")
         void listFromUserShouldThrowExceptionWhenUserNotFound() {
             PageRequest pageable = PageRequest.of(0, 10);
-            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
 
             assertThrows(EntityNotFoundException.class, () -> submissionService.listFromUser(user, pageable));
@@ -208,7 +209,6 @@ class SubmissionServiceTest {
         @DisplayName("Should throw EntityNotFoundException when problem does not exist")
         void listInProblemShouldThrowExceptionWhenProblemNotFound() {
             PageRequest pageable = PageRequest.of(0, 10);
-            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doThrow(new EntityNotFoundException("Problem", problemId.toString())).when(problemService).existsById(problemId);
 
             assertThrows(EntityNotFoundException.class, () -> submissionService.listInProblem(problem, pageable));
@@ -222,76 +222,38 @@ class SubmissionServiceTest {
         @Test
         @DisplayName("Should create and return submission with ACCEPTED status for correct answer")
         void createShouldReturnAcceptedWhenAnswerIsCorrect() {
-            TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
-            TestCase tc2 = new TestCase(2L, problem, "5", "10.0");
-            problem.setTestCases(Arrays.asList(tc1, tc2));
-
-            doNothing().when(userService).existsById(userId);
-            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
-            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
-            doAnswer(call -> {
-                Submission sub = call.getArgument(1);
-                sub.setStatus(SubmissionStatus.ACCEPTED);
-                return null;
-            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
+            mockProblemWithTestCases();
+            mockSubmissionSave();
+            mockJudgingStatus(SubmissionStatus.ACCEPTED);
 
             Submission createdSubmission = submissionService.create(submission, userId);
 
-            assertNotNull(createdSubmission);
-            assertEquals(SubmissionStatus.ACCEPTED, createdSubmission.getStatus());
-            assertEquals(userId, createdSubmission.getUser().getId());
-            verify(submissionRepository, times(1)).save(submission);
-            verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
+            assertCreatedSubmission(createdSubmission, SubmissionStatus.ACCEPTED);
         }
 
         @Test
         @DisplayName("Should create and return submission with WRONG_ANSWER status for incorrect answer")
         void createShouldReturnWrongAnswerWhenAnswerIsIncorrect() {
-            TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
-            TestCase tc2 = new TestCase(2L, problem, "5", "11.0");
-            problem.setTestCases(Arrays.asList(tc1, tc2));
-
-            doNothing().when(userService).existsById(userId);
-            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
-            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
-            doAnswer(call -> {
-                Submission sub = call.getArgument(1);
-                sub.setStatus(SubmissionStatus.WRONG_ANSWER);
-                return null;
-            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
+            mockProblemWithTestCases();
+            mockSubmissionSave();
+            mockJudgingStatus(SubmissionStatus.WRONG_ANSWER);
 
             Submission createdSubmission = submissionService.create(submission, userId);
 
-            assertNotNull(createdSubmission);
-            assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
-            assertEquals(userId, createdSubmission.getUser().getId());
-            verify(submissionRepository, times(1)).save(submission);
-            verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
+            assertCreatedSubmission(createdSubmission, SubmissionStatus.WRONG_ANSWER);
         }
 
         @Test
         @DisplayName("Should create and return submission with WRONG_ANSWER for invalid answer syntax")
         void createShouldReturnWrongAnswer_forInvalidAnswer() {
             submission.setAnswer("2*x+");
-            TestCase tc1 = new TestCase(1L, problem, "2", "4.0");
-            problem.setTestCases(Collections.singletonList(tc1));
-
-            doNothing().when(userService).existsById(userId);
-            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
-            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
-            doAnswer(call -> {
-                Submission sub = call.getArgument(1);
-                sub.setStatus(SubmissionStatus.WRONG_ANSWER);
-                return null;
-            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
+            mockProblemWithTestCases(new TestCase(1L, problem, "2", "4.0"));
+            mockSubmissionSave();
+            mockJudgingStatus(SubmissionStatus.WRONG_ANSWER);
 
             Submission createdSubmission = submissionService.create(submission, userId);
 
-            assertNotNull(createdSubmission);
-            assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
-            assertEquals(userId, createdSubmission.getUser().getId());
-            verify(submissionRepository, times(1)).save(submission);
-            verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
+            assertCreatedSubmission(createdSubmission, SubmissionStatus.WRONG_ANSWER);
         }
 
         @Test
@@ -302,6 +264,38 @@ class SubmissionServiceTest {
             assertThrows(EntityNotFoundException.class, () -> submissionService.create(submission, userId));
             verify(problemService, never()).findByIdWithTestCases(anyLong());
             verify(submissionRepository, never()).save(any(Submission.class));
+        }
+
+        private void mockProblemWithTestCases(TestCase... testCases) {
+            if (testCases.length == 0) {
+                testCases = new TestCase[]{
+                        new TestCase(1L, problem, "2", "4.0"),
+                        new TestCase(2L, problem, "5", "10.0")
+                };
+            }
+            problem.setTestCases(List.of(testCases));
+            doNothing().when(userService).existsById(userId);
+            when(problemService.findByIdWithTestCases(problemId)).thenReturn(problem);
+        }
+
+        private void mockSubmissionSave() {
+            when(submissionRepository.save(any(Submission.class))).thenReturn(submission);
+        }
+
+        private void mockJudgingStatus(SubmissionStatus status) {
+            doAnswer(call -> {
+                Submission sub = call.getArgument(1);
+                sub.setStatus(status);
+                return null;
+            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
+        }
+
+        private void assertCreatedSubmission(Submission createdSubmission, SubmissionStatus expectedStatus) {
+            assertNotNull(createdSubmission);
+            assertEquals(expectedStatus, createdSubmission.getStatus());
+            assertEquals(userId, createdSubmission.getUser().getId());
+            verify(submissionRepository, times(1)).save(submission);
+            verify(judgeService, times(1)).judge(problem, submission);
         }
     }
 

@@ -63,9 +63,7 @@ class AuthenticationServiceTest {
             when(userService.create(any(User.class)))
                     .thenThrow(new UsernameIsAlreadyInUseException("testuser"));
 
-            assertThrows(UsernameIsAlreadyInUseException.class, () -> {
-                authenticationService.register(user);
-            });
+            assertThrows(UsernameIsAlreadyInUseException.class, () -> authenticationService.register(user));
 
             verify(userService, times(1)).create(user);
         }
@@ -100,9 +98,7 @@ class AuthenticationServiceTest {
             when(userService.findByUsername(user.getUsername()))
                     .thenThrow(new EntityNotFoundException("User", user.getUsername()));
 
-            assertThrows(EntityNotFoundException.class, () -> {
-                authenticationService.login(user);
-            });
+            assertThrows(EntityNotFoundException.class, () -> authenticationService.login(user));
 
             verify(passwordEncoder, never()).matches(anyString(), anyString());
             verify(tokenService, never()).generate(any(User.class));
@@ -118,9 +114,7 @@ class AuthenticationServiceTest {
             when(userService.findByUsername(user.getUsername())).thenReturn(existingUser);
             when(passwordEncoder.matches(user.getPassword(), existingUser.getPassword())).thenReturn(false);
 
-            assertThrows(InvalidLoginException.class, () -> {
-                authenticationService.login(user);
-            });
+            assertThrows(InvalidLoginException.class, () -> authenticationService.login(user));
 
             verify(tokenService, never()).generate(any(User.class));
         }

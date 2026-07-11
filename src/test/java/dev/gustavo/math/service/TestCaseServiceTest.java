@@ -72,7 +72,7 @@ class TestCaseServiceTest {
     class CreateTestCase {
         @Test
         @DisplayName("Should create a new test case successfully")
-        void createShouldSaveAndReturnTestCaseWhenChallengeExists() {
+        void createShouldSaveAndReturnTestCaseWhenProblemExists() {
             doNothing().when(problemService).existsById(1L);
             when(testCaseRepository.save(any(TestCase.class))).thenReturn(testCase);
 
@@ -85,9 +85,9 @@ class TestCaseServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw EntityNotFoundException when the associated challenge does not exist")
-        void createShouldThrowExceptionWhenChallengeNotFound() {
-            doThrow(new EntityNotFoundException("Challenge", "1")).when(problemService).existsById(1L);
+        @DisplayName("Should throw EntityNotFoundException when the associated problem does not exist")
+        void createShouldThrowExceptionWhenProblemNotFound() {
+            doThrow(new EntityNotFoundException("Problem", "1")).when(problemService).existsById(1L);
 
             assertThrows(EntityNotFoundException.class, () -> testCaseService.create(testCase));
             verify(testCaseRepository, never()).save(any(TestCase.class));

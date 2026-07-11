@@ -104,14 +104,14 @@ class ProblemServiceTest {
         @Test
         @DisplayName("Should update and return problem when ID exists")
         void updateShouldUpdateAndReturnProblemWhenIdExists() {
-            Problem updatedDetails = new Problem();
-            updatedDetails.setTitle("Advanced Derivative Problem");
-            updatedDetails.setDifficulty(ProblemDifficulty.MEDIUM);
+            Problem updateData = new Problem();
+            updateData.setTitle("Advanced Derivative Problem");
+            updateData.setDifficulty(ProblemDifficulty.MEDIUM);
 
             when(problemRepository.findById(1L)).thenReturn(Optional.of(problem));
             when(problemRepository.save(any(Problem.class))).thenReturn(problem);
 
-            Problem updatedProblem = problemService.update(1L, updatedDetails);
+            Problem updatedProblem = problemService.update(1L, updateData);
 
             assertNotNull(updatedProblem);
             assertEquals("Advanced Derivative Problem", updatedProblem.getTitle());
@@ -123,10 +123,10 @@ class ProblemServiceTest {
         @Test
         @DisplayName("Should throw EntityNotFoundException when ID does not exist")
         void updateShouldThrowExceptionOnUpdateWhenIdDoesNotExist() {
-            Problem updatedDetails = new Problem();
+            Problem updateData = new Problem();
             when(problemRepository.findById(1L)).thenReturn(Optional.empty());
 
-            assertThrows(EntityNotFoundException.class, () -> problemService.update(1L, updatedDetails));
+            assertThrows(EntityNotFoundException.class, () -> problemService.update(1L, updateData));
             verify(problemRepository, never()).save(any(Problem.class));
         }
     }

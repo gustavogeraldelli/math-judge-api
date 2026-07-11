@@ -11,8 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class JudgeServiceTest {
+class JudgeServiceTest {
 
     private JudgeService judgeService;
 
@@ -20,7 +19,7 @@ public class JudgeServiceTest {
     private Problem numProblem;
     private Submission submission;
 
-    @BeforeAll
+    @BeforeEach
     void setUp() {
         judgeService = new JudgeService();
 

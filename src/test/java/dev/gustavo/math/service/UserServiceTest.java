@@ -122,13 +122,13 @@ class UserServiceTest {
         @Test
         @DisplayName("Should update user successfully")
         void updateShouldUpdateAndReturnUserWhenSuccessful() {
-            User newNickname = new User();
-            newNickname.setNickname("newNickname");
+            User updateData = new User();
+            updateData.setNickname("newNickname");
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(userRepository.save(any(User.class))).thenReturn(user);
 
-            User updatedUser = userService.update(userId, newNickname);
+            User updatedUser = userService.update(userId, updateData);
 
             assertNotNull(updatedUser);
             assertEquals("newNickname", updatedUser.getNickname());
@@ -137,26 +137,42 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw UsernameIsAlreadyInUseException when new username is already in use")
-        void updateShouldThrowExceptionWhenNewUsernameIsAlreadyInUse() {
-            User newUsername = new User();
-            newUsername.setUsername("existingUsername");
+        @DisplayName("Should encode password when updating user password")
+        void updateShouldEncodePasswordWhenPasswordIsChanged() {
+            User updateData = new User();
+            updateData.setPassword("newPassword");
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(userRepository.existsByUsername(newUsername.getUsername())).thenReturn(true);
+            when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
+            when(userRepository.save(any(User.class))).thenReturn(user);
 
-            assertThrows(UsernameIsAlreadyInUseException.class, () -> userService.update(userId, newUsername));
+            User updatedUser = userService.update(userId, updateData);
+
+            assertEquals("encodedNewPassword", updatedUser.getPassword());
+            verify(passwordEncoder, times(1)).encode("newPassword");
+            verify(userRepository, times(1)).save(user);
+        }
+
+        @Test
+        @DisplayName("Should throw UsernameIsAlreadyInUseException when new username is already in use")
+        void updateShouldThrowExceptionWhenNewUsernameIsAlreadyInUse() {
+            User updateData = new User();
+            updateData.setUsername("existingUsername");
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.existsByUsername(updateData.getUsername())).thenReturn(true);
+
+            assertThrows(UsernameIsAlreadyInUseException.class, () -> userService.update(userId, updateData));
             verify(userRepository, never()).save(any(User.class));
         }
 
         @Test
         @DisplayName("Should throw EntityNotFoundException when user does not exist")
         void updateShouldThrowExceptionWhenUserNotFound() {
-            User newUsername = new User();
+            User updateData = new User();
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            assertThrows(EntityNotFoundException.class, () -> userService.update(userId, newUsername));
-            verify(userRepository, never()).save(any(User.class));
+            assertThrows(EntityNotFoundException.class, () -> userService.update(userId, updateData));
             verify(userRepository, never()).save(any(User.class));
         }
     }
