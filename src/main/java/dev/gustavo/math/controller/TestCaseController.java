@@ -2,7 +2,7 @@ package dev.gustavo.math.controller;
 
 import dev.gustavo.math.controller.doc.ITestCaseController;
 import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
-import dev.gustavo.math.entity.TestCase;
+import dev.gustavo.math.controller.dto.testcase.TestCaseResponseDTO;
 import dev.gustavo.math.mapper.TestCaseMapper;
 import dev.gustavo.math.service.TestCaseService;
 import jakarta.validation.Valid;
@@ -17,18 +17,21 @@ public class TestCaseController implements ITestCaseController {
 
     private final TestCaseService testCaseService;
     private final TestCaseMapper testCaseMapper;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TestCase create(@Valid @RequestBody TestCaseRequestDTO testCaseCreateRequest) {
-        return testCaseService.create(
+    public TestCaseResponseDTO create(@Valid @RequestBody TestCaseRequestDTO testCaseCreateRequest) {
+        var testCase = testCaseService.create(
                 testCaseMapper.toTestCase(testCaseCreateRequest));
+        return testCaseMapper.toTestCaseResponseDTO(testCase);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TestCase update(@PathVariable Long id, @RequestBody TestCaseRequestDTO testCaseUpdateRequest) {
-        return testCaseService.update(
+    public TestCaseResponseDTO update(@PathVariable Long id, @RequestBody TestCaseRequestDTO testCaseUpdateRequest) {
+        var testCase = testCaseService.update(
                 id, testCaseMapper.toTestCase(testCaseUpdateRequest));
+        return testCaseMapper.toTestCaseResponseDTO(testCase);
     }
 
     @DeleteMapping("/{id}")

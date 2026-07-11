@@ -1,8 +1,7 @@
 package dev.gustavo.math.controller.doc;
 
-import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
-import dev.gustavo.math.entity.TestCase;
+import dev.gustavo.math.controller.dto.testcase.TestCaseResponseDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,13 +22,13 @@ public interface ITestCaseController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Test case created successfully",
-                    content = @Content(schema = @Schema(implementation = TestCaseRequestDTO.class))),
+                    content = @Content(schema = @Schema(implementation = TestCaseResponseDTO.class))),
             @ApiResponse(responseCode = "400", description = "Invalid request body",
                     content = @Content(schema = @Schema(implementation = Map.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    TestCase create(TestCaseRequestDTO testCaseCreateRequest);
+    TestCaseResponseDTO create(TestCaseRequestDTO testCaseCreateRequest);
 
     @Operation(
             summary = "Update test case (admin only)",
@@ -37,13 +36,13 @@ public interface ITestCaseController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Test case updated successfully",
-                    content = @Content(schema = @Schema(implementation = ProblemResponseDTO.class))),
+                    content = @Content(schema = @Schema(implementation = TestCaseResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Test case not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    TestCase update(Long id, TestCaseRequestDTO testCaseUpdateRequest);
+    TestCaseResponseDTO update(Long id, TestCaseRequestDTO testCaseUpdateRequest);
 
     @Operation(
             summary = "Delete test case (admin only)",

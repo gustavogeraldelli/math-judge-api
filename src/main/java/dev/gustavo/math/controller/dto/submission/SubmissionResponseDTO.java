@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 
 @Schema(description = "Response body representing a Submission")
 public record SubmissionResponseDTO(
+        @Schema(description = "Unique identifier of the submission", type = "long", example = "42")
+        Long id,
+
         @Schema(description = "ID of the problem being solved", type = "long", example = "1")
         Long problem,
 

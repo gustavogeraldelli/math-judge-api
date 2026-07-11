@@ -1,6 +1,7 @@
 package dev.gustavo.math.controller.dto.problem;
 
 import dev.gustavo.math.entity.enums.ProblemDifficulty;
+import dev.gustavo.math.entity.enums.ProblemType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Response body representing a Problem")
@@ -15,6 +16,9 @@ public record ProblemResponseDTO(
         String description,
 
         @Schema(description = "Difficulty level", example = "EASY")
-        ProblemDifficulty difficulty
+        ProblemDifficulty difficulty,
+
+        @Schema(description = "Problem type", example = "EXPRESSION")
+        ProblemType type
 ) {
 }

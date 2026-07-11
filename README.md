@@ -75,6 +75,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
   - Response
     ```json
     {
+      "id": 42,
       "problem": 1,
       "status": "ACCEPTED",
       "submittedAt": "2025-08-16T21:38:00"
