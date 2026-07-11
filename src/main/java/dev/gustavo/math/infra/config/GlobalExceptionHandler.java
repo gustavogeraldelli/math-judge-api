@@ -1,9 +1,10 @@
 package dev.gustavo.math.infra.config;
 
+import dev.gustavo.math.exception.EntityNotFoundException;
+import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.exception.InvalidLoginException;
 import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -44,6 +45,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidLoginException.class)
     public ResponseEntity<ErrorResponseDTO> handleInvalidLoginException(InvalidLoginException e) {
         return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ForbiddenOperationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleForbiddenOperationException(ForbiddenOperationException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
 }

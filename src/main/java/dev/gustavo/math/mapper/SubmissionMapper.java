@@ -14,7 +14,7 @@ public interface SubmissionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", constant = "PENDING")
     @Mapping(target = "problem.id", source = "problem")
-    @Mapping(target = "user.id", source = "user")
+    @Mapping(target = "user", ignore = true)
     Submission toSubmission(SubmissionRequestDTO submission);
 
     @Mapping(target = "problem", source = "problem.id")

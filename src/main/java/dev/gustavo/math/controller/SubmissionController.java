@@ -10,7 +10,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/submissions")
@@ -31,17 +34,22 @@ public class SubmissionController implements ISubmissionController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public SubmissionResponseDTO findById(@PathVariable Long id) {
-        var userSubmission = submissionService.findByIdWithUser(id);
+    public SubmissionResponseDTO findById(@PathVariable Long id, Authentication authentication) {
+        var userSubmission = submissionService.findByIdForUser(
+                id,
+                currentUserId(authentication),
+                isAdmin(authentication));
 
         return submissionMapper.toSubmissionResponseDTO(userSubmission);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SubmissionResponseDTO create(@Valid @RequestBody SubmissionRequestDTO submissionCreateRequest) {
+    public SubmissionResponseDTO create(@Valid @RequestBody SubmissionRequestDTO submissionCreateRequest,
+                                        Authentication authentication) {
         var submission = submissionService.create(
-                submissionMapper.toSubmission(submissionCreateRequest));
+                submissionMapper.toSubmission(submissionCreateRequest),
+                currentUserId(authentication));
         return submissionMapper.toSubmissionResponseDTO(submission);
     }
 
@@ -49,6 +57,15 @@ public class SubmissionController implements ISubmissionController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         submissionService.delete(id);
+    }
+
+    private UUID currentUserId(Authentication authentication) {
+        return (UUID) authentication.getPrincipal();
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 
 }

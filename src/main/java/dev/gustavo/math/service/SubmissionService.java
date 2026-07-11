@@ -4,11 +4,14 @@ import dev.gustavo.math.entity.Problem;
 import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.EntityNotFoundException;
+import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +31,22 @@ public class SubmissionService {
                 () -> new EntityNotFoundException("Submission", id.toString()));
     }
 
-    public Submission create(Submission submission) {
-        userService.existsById(submission.getUser().getId());
+    public Submission findByIdForUser(Long id, UUID currentUserId, boolean isAdmin) {
+        var submission = findByIdWithUser(id);
+
+        if (!isAdmin && !submission.getUser().getId().equals(currentUserId))
+            throw new ForbiddenOperationException("You cannot access this submission");
+
+        return submission;
+    }
+
+    public Submission create(Submission submission, UUID currentUserId) {
+        userService.existsById(currentUserId);
 
         var problem = problemService.findByIdWithTestCases(submission.getProblem().getId());
+        var user = new User();
+        user.setId(currentUserId);
+        submission.setUser(user);
 
         judgeService.judge(problem, submission);
 

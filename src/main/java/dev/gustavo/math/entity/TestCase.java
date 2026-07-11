@@ -22,7 +22,7 @@ public class TestCase {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @Column(nullable = false, name = "variable_names")
+    @Column(nullable = false, name = "variable_values")
     private String variableValues;
 
     @Column(nullable = false, name = "expected_answer")

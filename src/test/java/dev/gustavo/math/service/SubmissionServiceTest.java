@@ -6,6 +6,7 @@ import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.EntityNotFoundException;
+import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.repository.SubmissionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -101,6 +102,41 @@ class SubmissionServiceTest {
             when(submissionRepository.findByIdWithUser(submissionId)).thenReturn(Optional.empty());
 
             assertThrows(EntityNotFoundException.class, () -> submissionService.findByIdWithUser(submissionId));
+        }
+
+        @Test
+        @DisplayName("Should allow owner to find a submission by ID")
+        void findByIdForUserShouldReturnSubmissionForOwner() {
+            when(submissionRepository.findByIdWithUser(submissionId)).thenReturn(Optional.of(submission));
+
+            Submission foundSubmission = submissionService.findByIdForUser(submissionId, userId, false);
+
+            assertNotNull(foundSubmission);
+            assertEquals(submissionId, foundSubmission.getId());
+            verify(submissionRepository, times(1)).findByIdWithUser(submissionId);
+        }
+
+        @Test
+        @DisplayName("Should allow admin to find a submission by ID")
+        void findByIdForUserShouldReturnSubmissionForAdmin() {
+            UUID anotherUserId = UUID.randomUUID();
+            when(submissionRepository.findByIdWithUser(submissionId)).thenReturn(Optional.of(submission));
+
+            Submission foundSubmission = submissionService.findByIdForUser(submissionId, anotherUserId, true);
+
+            assertNotNull(foundSubmission);
+            assertEquals(submissionId, foundSubmission.getId());
+            verify(submissionRepository, times(1)).findByIdWithUser(submissionId);
+        }
+
+        @Test
+        @DisplayName("Should reject access when user does not own the submission")
+        void findByIdForUserShouldThrowForbiddenWhenUserIsNotOwner() {
+            UUID anotherUserId = UUID.randomUUID();
+            when(submissionRepository.findByIdWithUser(submissionId)).thenReturn(Optional.of(submission));
+
+            assertThrows(ForbiddenOperationException.class,
+                    () -> submissionService.findByIdForUser(submissionId, anotherUserId, false));
         }
     }
 
@@ -199,10 +235,11 @@ class SubmissionServiceTest {
                 return null;
             }).when(judgeService).judge(any(Problem.class), any(Submission.class));
 
-            Submission createdSubmission = submissionService.create(submission);
+            Submission createdSubmission = submissionService.create(submission, userId);
 
             assertNotNull(createdSubmission);
             assertEquals(SubmissionStatus.ACCEPTED, createdSubmission.getStatus());
+            assertEquals(userId, createdSubmission.getUser().getId());
             verify(submissionRepository, times(1)).save(submission);
             verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
         }
@@ -223,10 +260,11 @@ class SubmissionServiceTest {
                 return null;
             }).when(judgeService).judge(any(Problem.class), any(Submission.class));
 
-            Submission createdSubmission = submissionService.create(submission);
+            Submission createdSubmission = submissionService.create(submission, userId);
 
             assertNotNull(createdSubmission);
             assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
+            assertEquals(userId, createdSubmission.getUser().getId());
             verify(submissionRepository, times(1)).save(submission);
             verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
         }
@@ -247,10 +285,11 @@ class SubmissionServiceTest {
                 return null;
             }).when(judgeService).judge(any(Problem.class), any(Submission.class));
 
-            Submission createdSubmission = submissionService.create(submission);
+            Submission createdSubmission = submissionService.create(submission, userId);
 
             assertNotNull(createdSubmission);
             assertEquals(SubmissionStatus.WRONG_ANSWER, createdSubmission.getStatus());
+            assertEquals(userId, createdSubmission.getUser().getId());
             verify(submissionRepository, times(1)).save(submission);
             verify(judgeService, times(1)).judge(any(Problem.class), any(Submission.class));
         }
@@ -260,7 +299,7 @@ class SubmissionServiceTest {
         void createShouldThrowExceptionWhenUserNotFound() {
             doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
 
-            assertThrows(EntityNotFoundException.class, () -> submissionService.create(submission));
+            assertThrows(EntityNotFoundException.class, () -> submissionService.create(submission, userId));
             verify(problemService, never()).findByIdWithTestCases(anyLong());
             verify(submissionRepository, never()).save(any(Submission.class));
         }

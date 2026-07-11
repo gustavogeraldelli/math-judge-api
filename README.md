@@ -69,7 +69,6 @@ The API was designed to be a complete and efficient solution for mathematical pr
     ```json
     {
       "problem": 1,
-      "user": "user-uuid",
       "answer": "2x"
     }
     ```

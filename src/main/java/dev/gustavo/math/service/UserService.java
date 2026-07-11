@@ -47,7 +47,7 @@ public class UserService {
         }
 
         if (user.getPassword() != null && !user.getPassword().isBlank())
-            existingUser.setPassword(user.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if (user.getNickname() != null && !user.getNickname().isBlank())
             existingUser.setNickname(user.getNickname());

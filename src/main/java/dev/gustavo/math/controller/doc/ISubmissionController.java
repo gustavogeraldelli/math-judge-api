@@ -5,12 +5,14 @@ import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.Authentication;
 
 import java.util.Map;
 
@@ -41,7 +43,7 @@ public interface ISubmissionController {
             @ApiResponse(responseCode = "404", description = "Submission not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    SubmissionResponseDTO findById(Long id);
+    SubmissionResponseDTO findById(Long id, @Parameter(hidden = true) Authentication authentication);
 
     @Operation(
             summary = "Create a new submission",
@@ -55,7 +57,8 @@ public interface ISubmissionController {
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    SubmissionResponseDTO create(SubmissionRequestDTO submissionCreateRequest);
+    SubmissionResponseDTO create(SubmissionRequestDTO submissionCreateRequest,
+                                  @Parameter(hidden = true) Authentication authentication);
 
     @Operation(
             summary = "Delete submission (admin)",
