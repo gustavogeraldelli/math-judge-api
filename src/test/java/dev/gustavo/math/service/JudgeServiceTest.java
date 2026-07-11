@@ -89,6 +89,26 @@ public class JudgeServiceTest {
         }
 
         @Test
+        @DisplayName("Should accept numerically equivalent answers")
+        void shouldAcceptNumericallyEquivalentAnswer() {
+            submission.setAnswer("7");
+
+            judgeService.judge(numProblem, submission);
+
+            assertEquals(SubmissionStatus.ACCEPTED, submission.getStatus());
+        }
+
+        @Test
+        @DisplayName("Should accept numeric answer within tolerance")
+        void shouldAcceptNumericAnswerWithinTolerance() {
+            submission.setAnswer("7.0000000005");
+
+            judgeService.judge(numProblem, submission);
+
+            assertEquals(SubmissionStatus.ACCEPTED, submission.getStatus());
+        }
+
+        @Test
         @DisplayName("Should set status to WRONG_ANSWER for incorrect answer")
         void shouldSetWrongAnswerWhenAnswerIsWrong() {
             submission.setAnswer("8.0");

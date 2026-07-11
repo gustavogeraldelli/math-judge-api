@@ -15,6 +15,8 @@ import java.util.Set;
 @Service
 public class JudgeService {
 
+    private static final double EPSILON = 1e-9;
+
     public void judge(Problem problem, Submission submission) {
         if (problem.getTestCases().isEmpty())
             return;
@@ -26,12 +28,22 @@ public class JudgeService {
 
     private void evaluateNumericAnswer(Problem problem, Submission submission) {
         TestCase tc =  problem.getTestCases().get(0);
-        String expectedAnswer = tc.getExpectedAnswer();
-        String submittedAnswer = submission.getAnswer();
-        if (expectedAnswer.equals(submittedAnswer))
-            submission.setStatus(SubmissionStatus.ACCEPTED);
-        else
+        try {
+            double expectedAnswer = Double.parseDouble(tc.getExpectedAnswer());
+            double submittedAnswer = Double.parseDouble(submission.getAnswer());
+
+            if (nearlyEquals(submittedAnswer, expectedAnswer))
+                submission.setStatus(SubmissionStatus.ACCEPTED);
+            else
+                submission.setStatus(SubmissionStatus.WRONG_ANSWER);
+        }
+        catch (NumberFormatException e) {
             submission.setStatus(SubmissionStatus.WRONG_ANSWER);
+        }
+    }
+
+    private boolean nearlyEquals(double actual, double expected) {
+        return Math.abs(actual - expected) <= EPSILON;
     }
 
     private void evaluateExpressionAnswer(Problem problem, Submission submission) {
@@ -52,7 +64,7 @@ public class JudgeService {
 
                 double result = expression.evaluate();
                 double expectedAnswer = Double.parseDouble(tc.getExpectedAnswer());
-                if (Math.abs(result - expectedAnswer) > 1e-9) {
+                if (!nearlyEquals(result, expectedAnswer)) {
                     submission.setStatus(SubmissionStatus.WRONG_ANSWER);
                     return;
                 }
