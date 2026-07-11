@@ -58,7 +58,6 @@ public class JudgeService {
                 }
             }
             catch (Exception e) {
-                //
                 submission.setStatus(SubmissionStatus.WRONG_ANSWER);
                 return;
             }
@@ -68,9 +67,8 @@ public class JudgeService {
 
     private Set<String> extractVariables(String expression) {
         Set<String> vars = new HashSet<>();
-        if (expression.contains("x")) {
+        if (expression.contains("x"))
             vars.add("x");
-        }
         return vars;
     }
 }
