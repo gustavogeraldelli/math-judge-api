@@ -20,3 +20,5 @@ springdoc:
 api:
   jwt:
     secret: ${SECRET_KEY:supersecret}
+    refresh-token:
+      expiration-seconds: 604800

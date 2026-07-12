@@ -4,7 +4,7 @@ import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.InvalidLoginException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
-import dev.gustavo.math.infra.security.TokenService;
+import dev.gustavo.math.infra.security.AccessTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,7 +28,10 @@ class AuthenticationServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private TokenService tokenService;
+    private AccessTokenService accessTokenService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @InjectMocks
     private AuthenticationService authenticationService;
@@ -73,23 +76,29 @@ class AuthenticationServiceTest {
     @DisplayName("User Login")
     class LoginUser {
         @Test
-        @DisplayName("Should login successfully and return a token")
-        void loginShouldReturnTokenWhenLoginIsSuccessful() {
+        @DisplayName("Should login successfully and return authentication tokens")
+        void loginShouldReturnTokensWhenLoginIsSuccessful() {
             User existingUser = new User();
             existingUser.setUsername("username");
             existingUser.setPassword("encodedPassword");
 
             when(userService.findByUsername(user.getUsername())).thenReturn(existingUser);
             when(passwordEncoder.matches(user.getPassword(), existingUser.getPassword())).thenReturn(true);
-            when(tokenService.generate(existingUser)).thenReturn("jwt-token");
+            when(accessTokenService.generate(existingUser)).thenReturn("access-token");
+            when(accessTokenService.getExpiresInSeconds()).thenReturn(1800L);
+            when(refreshTokenService.create(existingUser)).thenReturn("refresh-token");
 
-            String token = authenticationService.login(user);
+            AuthenticationTokens tokens = authenticationService.login(user);
 
-            assertNotNull(token);
-            assertEquals("jwt-token", token);
+            assertNotNull(tokens);
+            assertEquals("access-token", tokens.accessToken());
+            assertEquals("refresh-token", tokens.refreshToken());
+            assertEquals("Bearer", tokens.tokenType());
+            assertEquals(1800L, tokens.expiresIn());
             verify(userService, times(1)).findByUsername(user.getUsername());
             verify(passwordEncoder, times(1)).matches(user.getPassword(), existingUser.getPassword());
-            verify(tokenService, times(1)).generate(existingUser);
+            verify(accessTokenService, times(1)).generate(existingUser);
+            verify(refreshTokenService, times(1)).create(existingUser);
         }
 
         @Test
@@ -101,7 +110,8 @@ class AuthenticationServiceTest {
             assertThrows(EntityNotFoundException.class, () -> authenticationService.login(user));
 
             verify(passwordEncoder, never()).matches(anyString(), anyString());
-            verify(tokenService, never()).generate(any(User.class));
+            verify(accessTokenService, never()).generate(any(User.class));
+            verify(refreshTokenService, never()).create(any(User.class));
         }
 
         @Test
@@ -116,7 +126,35 @@ class AuthenticationServiceTest {
 
             assertThrows(InvalidLoginException.class, () -> authenticationService.login(user));
 
-            verify(tokenService, never()).generate(any(User.class));
+            verify(accessTokenService, never()).generate(any(User.class));
+            verify(refreshTokenService, never()).create(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should refresh tokens when refresh token is valid")
+        void refreshShouldReturnNewTokensWhenRefreshTokenIsValid() {
+            User existingUser = new User();
+            when(refreshTokenService.rotate("refresh-token"))
+                    .thenReturn(new RefreshTokenResult(existingUser, "new-refresh-token"));
+            when(accessTokenService.generate(existingUser)).thenReturn("new-access-token");
+            when(accessTokenService.getExpiresInSeconds()).thenReturn(1800L);
+
+            AuthenticationTokens tokens = authenticationService.refresh("refresh-token");
+
+            assertEquals("new-access-token", tokens.accessToken());
+            assertEquals("new-refresh-token", tokens.refreshToken());
+            assertEquals("Bearer", tokens.tokenType());
+            assertEquals(1800L, tokens.expiresIn());
+            verify(refreshTokenService).rotate("refresh-token");
+            verify(accessTokenService).generate(existingUser);
+        }
+
+        @Test
+        @DisplayName("Should revoke refresh token on logout")
+        void logoutShouldRevokeRefreshToken() {
+            authenticationService.logout("refresh-token");
+
+            verify(refreshTokenService).revoke("refresh-token");
         }
     }
 

@@ -1,5 +1,6 @@
 package dev.gustavo.math.infra.security;
 
+import dev.gustavo.math.exception.TokenDecodingException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,21 +20,27 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityFilter extends OncePerRequestFilter {
 
-    private final TokenService tokenService;
+    private final AccessTokenService accessTokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7);
+            String accessToken = authorizationHeader.substring(7);
 
-            if (tokenService.validate(token)) {
-                UUID userId = tokenService.getUserId(token);
-                String role = tokenService.getUserRole(token);
-                var authentication = new UsernamePasswordAuthenticationToken(userId,
-                        null, Collections.singletonList(() -> role));
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                if (accessTokenService.validate(accessToken)) {
+                    UUID userId = accessTokenService.getUserId(accessToken);
+                    String role = accessTokenService.getUserRole(accessToken);
+                    var authentication = new UsernamePasswordAuthenticationToken(userId,
+                            null, Collections.singletonList(() -> role));
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
+            catch (TokenDecodingException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
         }
         filterChain.doFilter(request, response);

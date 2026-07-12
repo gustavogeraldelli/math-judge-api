@@ -3,6 +3,7 @@ package dev.gustavo.math.infra.config;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.exception.InvalidLoginException;
+import dev.gustavo.math.exception.InvalidRefreshTokenException;
 import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidLoginException.class)
     public ResponseEntity<ErrorResponseDTO> handleInvalidLoginException(InvalidLoginException e) {
-        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidRefreshTokenException(InvalidRefreshTokenException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ForbiddenOperationException.class)

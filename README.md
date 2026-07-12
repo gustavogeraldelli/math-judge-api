@@ -2,7 +2,7 @@
 ## Overview
 The API was designed to be a complete and efficient solution for mathematical problem platforms, offering:
 
-- User registration and authentication with JWT tokens
+- User registration and authentication with JWT access tokens and refresh tokens
 - Problem management, including creation, updating, and deletion
 - Test case management for each problem
 - Solution submission and automatic evaluation
@@ -37,7 +37,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
       "nickname": "nickname"
     }
     ```
-- `POST /api/v1/auth/login` → returns a JWT token
+- `POST /api/v1/auth/login` → returns access and refresh tokens
   - Payload
     ```json
     {
@@ -49,7 +49,24 @@ The API was designed to be a complete and efficient solution for mathematical pr
   - Response
     ```json
     {
-      "token": "jwt-token"
+      "accessToken": "jwt-access-token",
+      "refreshToken": "refresh-token",
+      "tokenType": "Bearer",
+      "expiresIn": 1800
+    }
+    ```
+- `POST /api/v1/auth/refresh` → exchanges a valid refresh token for a new access token
+  - Payload
+    ```json
+    {
+      "refreshToken": "refresh-token"
+    }
+    ```
+- `POST /api/v1/auth/logout` → revokes a refresh token
+  - Payload
+    ```json
+    {
+      "refreshToken": "refresh-token"
     }
     ```
 

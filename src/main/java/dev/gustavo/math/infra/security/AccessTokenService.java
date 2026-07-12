@@ -12,7 +12,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Component
-public class TokenService {
+public class AccessTokenService {
+
+    private static final long ACCESS_TOKEN_EXPIRATION_SECONDS = 1800;
 
     @Value("${api.jwt.secret}")
     String secret;
@@ -24,19 +26,19 @@ public class TokenService {
                 .withClaim("username", user.getUsername())
                 .withClaim("role", user.getRole().name())
                 .withIssuedAt(Instant.now())
-                .withExpiresAt(Instant.now().plusSeconds(1800))
+                .withExpiresAt(Instant.now().plusSeconds(ACCESS_TOKEN_EXPIRATION_SECONDS))
                 .withIssuer("mathjudge")
                 .sign(algorithm);
     }
 
-    public boolean validate(String token) {
-        decode(token);
+    public boolean validate(String accessToken) {
+        decode(accessToken);
         return true;
     }
 
-    public UUID getUserId(String token) {
+    public UUID getUserId(String accessToken) {
         try  {
-            DecodedJWT jwt = JWT.decode(token);
+            DecodedJWT jwt = decode(accessToken);
             return UUID.fromString(jwt.getSubject());
         }
         catch (Exception e) {
@@ -44,9 +46,9 @@ public class TokenService {
         }
     }
 
-    public String getUserRole(String token) {
+    public String getUserRole(String accessToken) {
         try  {
-            DecodedJWT jwt = decode(token);
+            DecodedJWT jwt = decode(accessToken);
             return jwt.getClaim("role").asString();
         }
         catch (Exception e) {
@@ -54,17 +56,17 @@ public class TokenService {
         }
     }
 
-    private DecodedJWT decode(String token) {
+    public long getExpiresInSeconds() {
+        return ACCESS_TOKEN_EXPIRATION_SECONDS;
+    }
+
+    private DecodedJWT decode(String accessToken) {
         try {
-            return JWT.require(Algorithm.HMAC256(secret)).build().verify(token);
+            return JWT.require(Algorithm.HMAC256(secret)).build().verify(accessToken);
         }
         catch (Exception e) {
             throw new TokenDecodingException("failed to decode");
         }
     }
-
-//    public Instant generateExpiresAt() {
-//        return Instant.now().plusSeconds(3600);
-//    }
 
 }
