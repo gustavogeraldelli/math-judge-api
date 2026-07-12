@@ -5,7 +5,9 @@ import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserUpdateRequestDTO;
 import dev.gustavo.math.controller.advice.ErrorResponseDTO;
+import dev.gustavo.math.controller.advice.ValidationErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,10 +27,16 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully",
                 content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                 content = @Content)
     })
-    PageableResponseDTO<UserResponseDTO> findAll(Integer page, Integer size);
+    PageableResponseDTO<UserResponseDTO> findAll(
+            @Parameter(description = "Page number, starting at 0", example = "0")
+            Integer page,
+            @Parameter(description = "Number of items per page", example = "10")
+            Integer size);
 
     @Operation(
             summary = "Find user by ID (self or admin)",
@@ -37,6 +45,8 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found",
                     content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -51,6 +61,10 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User updated successfully",
                     content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid request body",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -67,6 +81,8 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User deleted successfully",
                     content = @Content),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
@@ -81,12 +97,19 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Submissions retrieved successfully",
                     content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissions(UUID id, Integer page, Integer size);
+    PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissions(
+            UUID id,
+            @Parameter(description = "Page number, starting at 0", example = "0")
+            Integer page,
+            @Parameter(description = "Number of items per page", example = "10")
+            Integer size);
 
     @Operation(
             summary = "List submissions of a user in a specific problem (self or admin)",
@@ -95,11 +118,19 @@ public interface IUserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Submissions retrieved successfully",
                     content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "User or problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInProblem(UUID userId, Long problemId, Integer page, Integer size);
+    PageableResponseDTO<UserSubmissionsResponseDTO> listUserSubmissionsInProblem(
+            UUID userId,
+            Long problemId,
+            @Parameter(description = "Page number, starting at 0", example = "0")
+            Integer page,
+            @Parameter(description = "Number of items per page", example = "10")
+            Integer size);
 
 }

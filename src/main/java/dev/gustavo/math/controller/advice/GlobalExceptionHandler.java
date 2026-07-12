@@ -30,12 +30,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleArgumentNotValid(MethodArgumentNotValidException e) {
+    public ResponseEntity<ValidationErrorResponseDTO> handleArgumentNotValid(MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach((error) -> {
             errors.put(((FieldError) error).getField(), error.getDefaultMessage());
         });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ValidationErrorResponseDTO("Validation failed", errors), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(TokenDecodingException.class)
