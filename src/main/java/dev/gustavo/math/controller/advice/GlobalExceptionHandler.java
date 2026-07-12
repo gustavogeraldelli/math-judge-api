@@ -1,4 +1,4 @@
-package dev.gustavo.math.infra.config;
+package dev.gustavo.math.controller.advice;
 
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.ForbiddenOperationException;

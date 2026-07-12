@@ -5,7 +5,7 @@ import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
-import dev.gustavo.math.infra.config.ErrorResponseDTO;
+import dev.gustavo.math.controller.advice.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

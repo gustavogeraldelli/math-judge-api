@@ -3,7 +3,7 @@ package dev.gustavo.math.controller.doc;
 import dev.gustavo.math.controller.dto.testcase.TestCaseCreateRequestDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseResponseDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseUpdateRequestDTO;
-import dev.gustavo.math.infra.config.ErrorResponseDTO;
+import dev.gustavo.math.controller.advice.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

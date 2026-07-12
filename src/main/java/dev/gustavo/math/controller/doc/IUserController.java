@@ -4,7 +4,7 @@ import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserUpdateRequestDTO;
-import dev.gustavo.math.infra.config.ErrorResponseDTO;
+import dev.gustavo.math.controller.advice.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

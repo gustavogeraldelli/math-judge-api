@@ -1,4 +1,4 @@
-package dev.gustavo.math.infra.config;
+package dev.gustavo.math.controller.advice;
 
 public record ErrorResponseDTO(String error) {
 }
