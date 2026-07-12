@@ -7,7 +7,7 @@ import dev.gustavo.math.controller.dto.user.RefreshTokenRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserCreateRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.mapper.UserMapper;
-import dev.gustavo.math.service.AuthenticationService;
+import dev.gustavo.math.service.auth.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

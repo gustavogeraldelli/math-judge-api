@@ -1,4 +1,4 @@
-package dev.gustavo.math.service;
+package dev.gustavo.math.service.auth;
 
 public record AuthenticationTokens(
         String accessToken,

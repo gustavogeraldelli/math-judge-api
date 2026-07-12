@@ -1,6 +1,7 @@
 package dev.gustavo.math.infra.security;
 
 import dev.gustavo.math.exception.TokenDecodingException;
+import dev.gustavo.math.service.auth.AccessTokenService;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package dev.gustavo.math.infra.security;
+package dev.gustavo.math.service.auth;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

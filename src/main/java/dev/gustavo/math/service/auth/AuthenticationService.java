@@ -1,8 +1,8 @@
-package dev.gustavo.math.service;
+package dev.gustavo.math.service.auth;
 
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.InvalidLoginException;
-import dev.gustavo.math.infra.security.AccessTokenService;
+import dev.gustavo.math.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

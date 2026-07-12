@@ -1,10 +1,10 @@
-package dev.gustavo.math.service;
+package dev.gustavo.math.service.auth;
 
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.InvalidLoginException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
-import dev.gustavo.math.infra.security.AccessTokenService;
+import dev.gustavo.math.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

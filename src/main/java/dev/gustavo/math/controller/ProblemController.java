@@ -5,6 +5,7 @@ import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
+import dev.gustavo.math.controller.doc.IProblemController;
 import dev.gustavo.math.mapper.ProblemMapper;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.ProblemService;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/problems")
 @RequiredArgsConstructor
-public class ProblemController implements dev.gustavo.math.controller.doc.ProblemController {
+public class ProblemController implements IProblemController {
 
     private final ProblemService problemService;
     private final SubmissionService submissionService;

@@ -1,4 +1,4 @@
-package dev.gustavo.math.service;
+package dev.gustavo.math.service.auth;
 
 import dev.gustavo.math.entity.RefreshToken;
 import dev.gustavo.math.entity.User;

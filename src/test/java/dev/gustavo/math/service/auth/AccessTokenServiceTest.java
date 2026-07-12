@@ -1,4 +1,4 @@
-package dev.gustavo.math.infra.security;
+package dev.gustavo.math.service.auth;
 
 import dev.gustavo.math.entity.User;
 import dev.gustavo.math.entity.enums.UserRole;

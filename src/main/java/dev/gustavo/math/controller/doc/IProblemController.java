@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 
 @Tag(name = "Problems", description = "Manage and view math challenges")
-public interface ProblemController {
+public interface IProblemController {
 
 
     @Operation(
