@@ -39,6 +39,9 @@ public class ProblemService {
         if (problem.getDifficulty() != null)
             existingProblem.setDifficulty(problem.getDifficulty());
 
+        if (problem.getType() != null)
+            existingProblem.setType(problem.getType());
+
         return problemRepository.save(existingProblem);
     }
 

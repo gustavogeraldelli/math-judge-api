@@ -4,7 +4,7 @@ import dev.gustavo.math.controller.doc.IAuthenticationController;
 import dev.gustavo.math.controller.dto.user.LoginRequestDTO;
 import dev.gustavo.math.controller.dto.user.LoginResponseDTO;
 import dev.gustavo.math.controller.dto.user.RefreshTokenRequestDTO;
-import dev.gustavo.math.controller.dto.user.UserRequestDTO;
+import dev.gustavo.math.controller.dto.user.UserCreateRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.mapper.UserMapper;
 import dev.gustavo.math.service.AuthenticationService;
@@ -23,7 +23,7 @@ public class AuthenticationController implements IAuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO register(@Valid @RequestBody UserRequestDTO userCreateRequest) {
+    public UserResponseDTO register(@Valid @RequestBody UserCreateRequestDTO userCreateRequest) {
         var user = authenticationService.register(userMapper.toUser(userCreateRequest));
         return userMapper.toUserResponseDTO(user);
     }

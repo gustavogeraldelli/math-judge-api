@@ -1,9 +1,10 @@
 package dev.gustavo.math.controller;
 
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
-import dev.gustavo.math.controller.dto.problem.ProblemRequestDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
 import dev.gustavo.math.mapper.ProblemMapper;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.ProblemService;
@@ -40,14 +41,14 @@ public class ProblemController implements dev.gustavo.math.controller.doc.Proble
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProblemResponseDTO create(@Valid @RequestBody ProblemRequestDTO problemCreateRequest) {
+    public ProblemResponseDTO create(@Valid @RequestBody ProblemCreateRequestDTO problemCreateRequest) {
         var problem = problemService.create(problemMapper.toProblem(problemCreateRequest));
         return problemMapper.toProblemResponseDTO(problem);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProblemResponseDTO update(@PathVariable Long id, @RequestBody ProblemRequestDTO problemUpdateRequest) {
+    public ProblemResponseDTO update(@PathVariable Long id, @Valid @RequestBody ProblemUpdateRequestDTO problemUpdateRequest) {
         var updatedProblem = problemService.update(id,
                 problemMapper.toProblem(problemUpdateRequest));
         return problemMapper.toProblemResponseDTO(updatedProblem);

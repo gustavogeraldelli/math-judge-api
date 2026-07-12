@@ -107,6 +107,7 @@ class ProblemServiceTest {
             Problem updateData = new Problem();
             updateData.setTitle("Advanced Derivative Problem");
             updateData.setDifficulty(ProblemDifficulty.MEDIUM);
+            updateData.setType(ProblemType.NUMERIC);
 
             when(problemRepository.findById(1L)).thenReturn(Optional.of(problem));
             when(problemRepository.save(any(Problem.class))).thenReturn(problem);
@@ -116,6 +117,7 @@ class ProblemServiceTest {
             assertNotNull(updatedProblem);
             assertEquals("Advanced Derivative Problem", updatedProblem.getTitle());
             assertEquals(ProblemDifficulty.MEDIUM, updatedProblem.getDifficulty());
+            assertEquals(ProblemType.NUMERIC, updatedProblem.getType());
             verify(problemRepository, times(1)).findById(1L);
             verify(problemRepository, times(1)).save(problem);
         }

@@ -1,7 +1,8 @@
 package dev.gustavo.math.mapper;
 
-import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
+import dev.gustavo.math.controller.dto.testcase.TestCaseCreateRequestDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseResponseDTO;
+import dev.gustavo.math.controller.dto.testcase.TestCaseUpdateRequestDTO;
 import dev.gustavo.math.entity.TestCase;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,7 +12,11 @@ public interface TestCaseMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "problem.id", source = "problem")
-    TestCase toTestCase(TestCaseRequestDTO testCase);
+    TestCase toTestCase(TestCaseCreateRequestDTO testCase);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "problem.id", source = "problem")
+    TestCase toTestCase(TestCaseUpdateRequestDTO testCase);
 
     @Mapping(target = "problem", source = "problem.id")
     TestCaseResponseDTO toTestCaseResponseDTO(TestCase testCase);

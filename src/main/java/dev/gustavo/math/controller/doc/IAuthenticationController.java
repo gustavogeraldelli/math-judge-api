@@ -3,7 +3,7 @@ package dev.gustavo.math.controller.doc;
 import dev.gustavo.math.controller.dto.user.LoginRequestDTO;
 import dev.gustavo.math.controller.dto.user.LoginResponseDTO;
 import dev.gustavo.math.controller.dto.user.RefreshTokenRequestDTO;
-import dev.gustavo.math.controller.dto.user.UserRequestDTO;
+import dev.gustavo.math.controller.dto.user.UserCreateRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +31,7 @@ public interface IAuthenticationController {
             @ApiResponse(responseCode = "409", description = "Username already in use",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    UserResponseDTO register(UserRequestDTO userCreateRequest);
+    UserResponseDTO register(UserCreateRequestDTO userCreateRequest);
 
 
     @Operation(

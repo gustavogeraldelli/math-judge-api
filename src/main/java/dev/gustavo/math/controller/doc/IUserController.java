@@ -1,9 +1,9 @@
 package dev.gustavo.math.controller.doc;
 
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
-import dev.gustavo.math.controller.dto.user.UserRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
+import dev.gustavo.math.controller.dto.user.UserUpdateRequestDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -58,7 +58,7 @@ public interface IUserController {
             @ApiResponse(responseCode = "409", description = "Username already in use",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    UserResponseDTO update(UUID id, UserRequestDTO userUpdateRequest);
+    UserResponseDTO update(UUID id, UserUpdateRequestDTO userUpdateRequest);
 
     @Operation(
             summary = "Delete user (self or admin)",

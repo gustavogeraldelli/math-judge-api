@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
 public interface SubmissionMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "submittedAt", ignore = true)
     @Mapping(target = "status", constant = "PENDING")
     @Mapping(target = "problem.id", source = "problem")
     @Mapping(target = "user", ignore = true)

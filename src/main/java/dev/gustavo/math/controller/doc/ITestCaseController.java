@@ -1,7 +1,8 @@
 package dev.gustavo.math.controller.doc;
 
-import dev.gustavo.math.controller.dto.testcase.TestCaseRequestDTO;
+import dev.gustavo.math.controller.dto.testcase.TestCaseCreateRequestDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseResponseDTO;
+import dev.gustavo.math.controller.dto.testcase.TestCaseUpdateRequestDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,7 +29,7 @@ public interface ITestCaseController {
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    TestCaseResponseDTO create(TestCaseRequestDTO testCaseCreateRequest);
+    TestCaseResponseDTO create(TestCaseCreateRequestDTO testCaseCreateRequest);
 
     @Operation(
             summary = "Update test case (admin only)",
@@ -42,7 +43,7 @@ public interface ITestCaseController {
             @ApiResponse(responseCode = "404", description = "Test case not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    TestCaseResponseDTO update(Long id, TestCaseRequestDTO testCaseUpdateRequest);
+    TestCaseResponseDTO update(Long id, TestCaseUpdateRequestDTO testCaseUpdateRequest);
 
     @Operation(
             summary = "Delete test case (admin only)",

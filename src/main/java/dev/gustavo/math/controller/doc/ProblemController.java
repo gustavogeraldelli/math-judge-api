@@ -1,9 +1,10 @@
 package dev.gustavo.math.controller.doc;
 
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
-import dev.gustavo.math.controller.dto.problem.ProblemRequestDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
+import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
 import dev.gustavo.math.infra.config.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -57,7 +58,7 @@ public interface ProblemController {
             @ApiResponse(responseCode = "403", description = "Forbidden",
                     content = @Content)
     })
-    ProblemResponseDTO create(ProblemRequestDTO problemCreateRequest);
+    ProblemResponseDTO create(ProblemCreateRequestDTO problemCreateRequest);
 
     @Operation(
             summary = "Update problem (admin only)",
@@ -71,7 +72,7 @@ public interface ProblemController {
             @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    ProblemResponseDTO update(Long id, ProblemRequestDTO problemUpdateRequest);
+    ProblemResponseDTO update(Long id, ProblemUpdateRequestDTO problemUpdateRequest);
 
     @Operation(
             summary = "Delete problem (admin only)",

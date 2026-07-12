@@ -7,8 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-@Schema(description = "Request body for creating or updating a Problem")
-public record ProblemRequestDTO(
+@Schema(description = "Request body for creating a Problem")
+public record ProblemCreateRequestDTO(
         @Schema(description = "Title of the problem", example = "Find the derivative")
         @NotBlank(message = "Title is required")
         @Size(min = 1, max = 64, message = "Title can have up to 64 characters")

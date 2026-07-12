@@ -2,14 +2,15 @@ package dev.gustavo.math.controller;
 
 import dev.gustavo.math.controller.doc.IUserController;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
-import dev.gustavo.math.controller.dto.user.UserRequestDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
+import dev.gustavo.math.controller.dto.user.UserUpdateRequestDTO;
 import dev.gustavo.math.mapper.ProblemMapper;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.mapper.UserMapper;
 import dev.gustavo.math.service.SubmissionService;
 import dev.gustavo.math.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class UserController implements IUserController {
     @PreAuthorize("#id == authentication.principal or hasRole('ADMIN')")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResponseDTO update(@PathVariable UUID id, @RequestBody UserRequestDTO userUpdateRequest) {
+    public UserResponseDTO update(@PathVariable UUID id, @Valid @RequestBody UserUpdateRequestDTO userUpdateRequest) {
         var updatedUser = userService.update(id, userMapper.toUser(userUpdateRequest));
         return userMapper.toUserResponseDTO(updatedUser);
     }
