@@ -37,8 +37,9 @@ public class SubmissionController implements ISubmissionController {
     public SubmissionResponseDTO findById(@PathVariable Long id, Authentication authentication) {
         var userSubmission = submissionService.findByIdForUser(
                 id,
-                currentUserId(authentication),
-                isAdmin(authentication));
+                (UUID) authentication.getPrincipal(),
+                authentication.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")));
 
         return submissionMapper.toSubmissionResponseDTO(userSubmission);
     }
@@ -49,7 +50,7 @@ public class SubmissionController implements ISubmissionController {
                                         Authentication authentication) {
         var submission = submissionService.create(
                 submissionMapper.toSubmission(submissionCreateRequest),
-                currentUserId(authentication));
+                (UUID) authentication.getPrincipal());
         return submissionMapper.toSubmissionResponseDTO(submission);
     }
 
@@ -57,15 +58,6 @@ public class SubmissionController implements ISubmissionController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         submissionService.delete(id);
-    }
-
-    private UUID currentUserId(Authentication authentication) {
-        return (UUID) authentication.getPrincipal();
-    }
-
-    private boolean isAdmin(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 
 }

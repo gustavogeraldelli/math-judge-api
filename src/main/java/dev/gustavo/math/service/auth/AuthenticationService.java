@@ -26,7 +26,11 @@ public class AuthenticationService {
         if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword()))
             throw new InvalidLoginException();
 
-        return issueTokens(existingUser);
+        return new AuthenticationTokens(
+                accessTokenService.generate(existingUser),
+                refreshTokenService.create(existingUser),
+                "Bearer",
+                accessTokenService.getExpiresInSeconds());
     }
 
     public AuthenticationTokens refresh(String refreshToken) {
@@ -42,11 +46,4 @@ public class AuthenticationService {
         refreshTokenService.revoke(refreshToken);
     }
 
-    private AuthenticationTokens issueTokens(User user) {
-        return new AuthenticationTokens(
-                accessTokenService.generate(user),
-                refreshTokenService.create(user),
-                "Bearer",
-                accessTokenService.getExpiresInSeconds());
-    }
 }

@@ -6,6 +6,7 @@ import dev.gustavo.math.entity.User;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.repository.SubmissionRepository;
+import dev.gustavo.math.service.judge.JudgeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +49,8 @@ public class SubmissionService {
         user.setId(currentUserId);
         submission.setUser(user);
 
-        judgeService.judge(problem, submission);
+        var result = judgeService.judge(problem, submission.getAnswer());
+        submission.setStatus(result.status());
 
         return submissionRepository.save(submission);
     }

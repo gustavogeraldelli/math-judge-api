@@ -8,6 +8,8 @@ import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.repository.SubmissionRepository;
+import dev.gustavo.math.service.judge.EvaluationResult;
+import dev.gustavo.math.service.judge.JudgeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -283,11 +285,8 @@ class SubmissionServiceTest {
         }
 
         private void mockJudgingStatus(SubmissionStatus status) {
-            doAnswer(call -> {
-                Submission sub = call.getArgument(1);
-                sub.setStatus(status);
-                return null;
-            }).when(judgeService).judge(any(Problem.class), any(Submission.class));
+            when(judgeService.judge(any(Problem.class), anyString()))
+                    .thenReturn(new EvaluationResult(status));
         }
 
         private void assertCreatedSubmission(Submission createdSubmission, SubmissionStatus expectedStatus) {
@@ -295,7 +294,7 @@ class SubmissionServiceTest {
             assertEquals(expectedStatus, createdSubmission.getStatus());
             assertEquals(userId, createdSubmission.getUser().getId());
             verify(submissionRepository, times(1)).save(submission);
-            verify(judgeService, times(1)).judge(problem, submission);
+            verify(judgeService, times(1)).judge(problem, submission.getAnswer());
         }
     }
 
