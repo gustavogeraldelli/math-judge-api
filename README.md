@@ -96,6 +96,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
   - Regular users can only query their own submissions.
 - `GET /api/v1/submissions/{id}` → get a submission (owner or admin)
 - `POST /api/v1/problems/{problemId}/submissions` → submit a solution to a problem
+  - The submission is created with `PENDING` status and evaluated asynchronously.
 - `DELETE /api/v1/submissions/{id}` → delete a submission (admin only)
   - Payload
     ```json
@@ -108,7 +109,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
     {
       "id": 42,
       "problem": 1,
-      "status": "ACCEPTED",
+      "status": "PENDING",
       "submittedAt": "2025-08-16T21:38:00"
     }
     ```
@@ -194,6 +195,4 @@ src/
 ## Future Improvements
 - [ ] Improve DTOs
 - [ ] User ranking system
-- [ ] Async processing
-  - Implement `PENDING`, `EVALUATING`, `ACCEPTED`, `WRONG_ANSWER` statuses using asynchronous evaluation logic
 - [ ] Expressions with multiple variables (beyond just 'x')

@@ -72,9 +72,9 @@ class SubmissionControllerTest {
             var createdSubmission = new Submission();
             createdSubmission.setId(42L);
             createdSubmission.setProblem(problem);
-            createdSubmission.setStatus(SubmissionStatus.ACCEPTED);
+            createdSubmission.setStatus(SubmissionStatus.PENDING);
             createdSubmission.setSubmittedAt(LocalDateTime.of(2026, 7, 15, 20, 0));
-            var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.ACCEPTED, createdSubmission.getSubmittedAt());
+            var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.PENDING, createdSubmission.getSubmittedAt());
 
             authenticate("user-token", userId, "ROLE_USER");
             when(submissionMapper.toSubmission(any())).thenReturn(submission);
@@ -92,7 +92,7 @@ class SubmissionControllerTest {
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(42))
                     .andExpect(jsonPath("$.problem").value(10))
-                    .andExpect(jsonPath("$.status").value("ACCEPTED"));
+                    .andExpect(jsonPath("$.status").value("PENDING"));
 
             verify(submissionService).create(submission, 10L, userId);
         }
@@ -183,7 +183,7 @@ class SubmissionControllerTest {
             submission.setAnswer("2*x");
             var createdSubmission = new Submission();
             createdSubmission.setId(42L);
-            var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.ACCEPTED, null);
+            var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.PENDING, null);
 
             authenticate("user-token", userId, "ROLE_USER");
             when(submissionMapper.toSubmission(any())).thenReturn(submission);

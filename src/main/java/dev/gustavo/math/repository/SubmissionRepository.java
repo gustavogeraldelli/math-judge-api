@@ -29,4 +29,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
     @Query("SELECT s FROM Submission s JOIN FETCH s.user WHERE s.id = :id")
     Optional<Submission> findByIdWithUser(Long id);
+
+    @Query("SELECT DISTINCT s FROM Submission s JOIN FETCH s.problem p LEFT JOIN FETCH p.testCases WHERE s.id = :id")
+    Optional<Submission> findByIdWithProblemAndTestCases(Long id);
 }

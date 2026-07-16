@@ -5,9 +5,10 @@ import dev.gustavo.math.entity.User;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.ForbiddenOperationException;
+import dev.gustavo.math.event.SubmissionCreatedEvent;
 import dev.gustavo.math.repository.SubmissionRepository;
-import dev.gustavo.math.service.judge.JudgeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class SubmissionService {
     private final SubmissionRepository submissionRepository;
     private final UserService userService;
     private final ProblemService problemService;
-    private final JudgeService judgeService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Page<Submission> findByFilters(UUID userId, Long problemId, SubmissionStatus status,
                                           UUID currentUserId, boolean isAdmin, Pageable pageable) {
@@ -63,16 +64,16 @@ public class SubmissionService {
     public Submission create(Submission submission, Long problemId, UUID currentUserId) {
         userService.existsById(currentUserId);
 
-        var problem = problemService.findByIdWithTestCases(problemId);
+        var problem = problemService.findById(problemId);
         var user = new User();
         user.setId(currentUserId);
         submission.setProblem(problem);
         submission.setUser(user);
+        submission.setStatus(SubmissionStatus.PENDING);
 
-        var result = judgeService.judge(problem, submission.getAnswer());
-        submission.setStatus(result.status());
-
-        return submissionRepository.save(submission);
+        var savedSubmission = submissionRepository.save(submission);
+        eventPublisher.publishEvent(new SubmissionCreatedEvent(savedSubmission.getId()));
+        return savedSubmission;
     }
 
     public void delete(Long id) {

@@ -4,5 +4,6 @@ public enum SubmissionStatus {
     PENDING,
     EVALUATING,
     ACCEPTED,
-    WRONG_ANSWER
+    WRONG_ANSWER,
+    ERROR
 }

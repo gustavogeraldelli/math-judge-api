@@ -60,7 +60,7 @@ class SubmissionFlowIT {
     private SubmissionRepository submissionRepository;
 
     @Test
-    void shouldPersistAndEvaluateSubmissionWithPostgresAndFlyway() {
+    void shouldPersistAndEvaluateSubmissionWithPostgresAndFlyway() throws InterruptedException {
         var user = userService.create(user());
         var problem = problemService.create(numericProblem());
         testCaseService.create(testCase(problem));
@@ -74,8 +74,8 @@ class SubmissionFlowIT {
         var persistedSubmission = submissionRepository.findById(createdSubmission.getId()).orElseThrow();
         assertNotNull(createdSubmission.getId());
         assertNotNull(createdSubmission.getSubmittedAt());
-        assertEquals(SubmissionStatus.ACCEPTED, createdSubmission.getStatus());
-        assertEquals(SubmissionStatus.ACCEPTED, persistedSubmission.getStatus());
+        assertEquals(SubmissionStatus.PENDING, createdSubmission.getStatus());
+        assertEquals(SubmissionStatus.ACCEPTED, awaitFinalStatus(createdSubmission.getId()));
     }
 
     private User user() {
@@ -103,5 +103,15 @@ class SubmissionFlowIT {
         testCase.setVariableValues("{}");
         testCase.setExpectedAnswer("4");
         return testCase;
+    }
+
+    private SubmissionStatus awaitFinalStatus(Long submissionId) throws InterruptedException {
+        for (int attempt = 0; attempt < 20; attempt++) {
+            var status = submissionRepository.findById(submissionId).orElseThrow().getStatus();
+            if (status == SubmissionStatus.ACCEPTED || status == SubmissionStatus.WRONG_ANSWER || status == SubmissionStatus.ERROR)
+                return status;
+            Thread.sleep(100);
+        }
+        return submissionRepository.findById(submissionId).orElseThrow().getStatus();
     }
 }
