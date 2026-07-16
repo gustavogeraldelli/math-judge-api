@@ -114,6 +114,11 @@ The API was designed to be a complete and efficient solution for mathematical pr
     }
     ```
 
+### Ranking `/api/v1/ranking`
+- `GET /api/v1/ranking` → list users ordered by distinct accepted problems
+  - Optional filters: `difficulty`, `page`, `size`
+  - Example: `GET /api/v1/ranking?difficulty=HARD`
+
 Refer to the Swagger documentation for detailed examples of all endpoints.
 
 </details>
@@ -194,5 +199,4 @@ src/
 
 ## Future Improvements
 - [ ] Improve DTOs
-- [ ] User ranking system
 - [ ] Expressions with multiple variables (beyond just 'x')

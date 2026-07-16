@@ -11,12 +11,14 @@ import dev.gustavo.math.entity.enums.UserRank;
 import dev.gustavo.math.entity.enums.UserRole;
 import dev.gustavo.math.repository.SubmissionRepository;
 import dev.gustavo.math.service.ProblemService;
+import dev.gustavo.math.service.RankingService;
 import dev.gustavo.math.service.SubmissionService;
 import dev.gustavo.math.service.TestCaseService;
 import dev.gustavo.math.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -59,8 +61,11 @@ class SubmissionFlowIT {
     @Autowired
     private SubmissionRepository submissionRepository;
 
+    @Autowired
+    private RankingService rankingService;
+
     @Test
-    void shouldPersistAndEvaluateSubmissionWithPostgresAndFlyway() throws InterruptedException {
+    void shouldPersistEvaluateSubmissionAndUpdateRankingWithPostgresAndFlyway() throws InterruptedException {
         var user = userService.create(user());
         var problem = problemService.create(numericProblem());
         testCaseService.create(testCase(problem));
@@ -76,6 +81,11 @@ class SubmissionFlowIT {
         assertNotNull(createdSubmission.getSubmittedAt());
         assertEquals(SubmissionStatus.PENDING, createdSubmission.getStatus());
         assertEquals(SubmissionStatus.ACCEPTED, awaitFinalStatus(createdSubmission.getId()));
+
+        var ranking = rankingService.findRanking(ProblemDifficulty.EASY, PageRequest.of(0, 10));
+        assertEquals(1, ranking.getTotalElements());
+        assertEquals(user.getId(), ranking.getContent().getFirst().userId());
+        assertEquals(1L, ranking.getContent().getFirst().resolvedProblems());
     }
 
     private User user() {
