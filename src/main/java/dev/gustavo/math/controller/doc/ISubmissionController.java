@@ -5,6 +5,7 @@ import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
 import dev.gustavo.math.controller.advice.ErrorResponseDTO;
 import dev.gustavo.math.controller.advice.ValidationErrorResponseDTO;
+import dev.gustavo.math.entity.enums.SubmissionStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,11 +16,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.Authentication;
 
+import java.util.UUID;
+
 @Tag(name = "Submissions", description = "Submit and view problem submissions")
 public interface ISubmissionController {
 
     @Operation(
-            summary = "List all submissions (admin only)",
+            summary = "List submissions with optional filters",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses({
@@ -34,7 +37,14 @@ public interface ISubmissionController {
             @Parameter(description = "Page number, starting at 0", example = "0")
             Integer page,
             @Parameter(description = "Number of items per page", example = "10")
-            Integer size);
+            Integer size,
+            @Parameter(description = "Filter by user ID. Regular users can only use their own ID.")
+            UUID userId,
+            @Parameter(description = "Filter by problem ID", example = "1")
+            Long problemId,
+            @Parameter(description = "Filter by submission status", example = "ACCEPTED")
+            SubmissionStatus status,
+            @Parameter(hidden = true) Authentication authentication);
 
     @Operation(
             summary = "Find submission by ID (owner or admin)",
@@ -53,7 +63,7 @@ public interface ISubmissionController {
     SubmissionResponseDTO findById(Long id, @Parameter(hidden = true) Authentication authentication);
 
     @Operation(
-            summary = "Create a new submission",
+            summary = "Create a new submission for a problem",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
@@ -68,8 +78,11 @@ public interface ISubmissionController {
             @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    SubmissionResponseDTO create(SubmissionRequestDTO submissionCreateRequest,
-                                  @Parameter(hidden = true) Authentication authentication);
+    SubmissionResponseDTO create(
+            @Parameter(description = "Problem ID", example = "1")
+            Long problemId,
+            SubmissionRequestDTO submissionCreateRequest,
+            @Parameter(hidden = true) Authentication authentication);
 
     @Operation(
             summary = "Delete submission (admin)",

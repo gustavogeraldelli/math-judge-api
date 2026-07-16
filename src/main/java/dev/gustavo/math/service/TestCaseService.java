@@ -4,6 +4,8 @@ import dev.gustavo.math.entity.TestCase;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.repository.TestCaseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +23,17 @@ public class TestCaseService {
     public TestCase create(TestCase testCase) {
         problemService.existsById(testCase.getProblem().getId());
         return testCaseRepository.save(testCase);
+    }
+
+    public TestCase create(TestCase testCase, Long problemId) {
+        var problem = problemService.findById(problemId);
+        testCase.setProblem(problem);
+        return testCaseRepository.save(testCase);
+    }
+
+    public Page<TestCase> listByProblem(Long problemId, Pageable pageable) {
+        problemService.existsById(problemId);
+        return testCaseRepository.findByProblemId(problemId, pageable);
     }
 
     public TestCase update(Long id, TestCase testCase) {

@@ -1,23 +1,13 @@
 package dev.gustavo.math.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserResponseDTO;
-import dev.gustavo.math.controller.dto.user.UserSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.user.UserUpdateRequestDTO;
-import dev.gustavo.math.entity.Problem;
-import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.User;
-import dev.gustavo.math.entity.enums.ProblemDifficulty;
-import dev.gustavo.math.entity.enums.ProblemType;
-import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.infra.security.SecurityConfig;
 import dev.gustavo.math.infra.security.SecurityFilter;
-import dev.gustavo.math.mapper.ProblemMapper;
-import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.mapper.UserMapper;
-import dev.gustavo.math.service.SubmissionService;
 import dev.gustavo.math.service.UserService;
 import dev.gustavo.math.service.auth.AccessTokenService;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,16 +52,7 @@ class UserControllerTest {
     private UserService userService;
 
     @MockitoBean
-    private SubmissionService submissionService;
-
-    @MockitoBean
     private UserMapper userMapper;
-
-    @MockitoBean
-    private SubmissionMapper submissionMapper;
-
-    @MockitoBean
-    private ProblemMapper problemMapper;
 
     @Nested
     @DisplayName("Endpoints")
@@ -159,55 +139,6 @@ class UserControllerTest {
             verify(userService).delete(userId);
         }
 
-        @Test
-        @DisplayName("Should allow user to list own submissions")
-        void shouldAllowUserToListOwnSubmissions() throws Exception {
-            UUID userId = UUID.randomUUID();
-            var userRef = user(userId, null, null);
-            var submission = submission();
-            var response = userSubmissionResponse();
-
-            authenticate("user-token", userId, "ROLE_USER");
-            when(userMapper.toUser(userId)).thenReturn(userRef);
-            when(submissionService.listFromUser(userRef, PageRequest.of(0, 10)))
-                    .thenReturn(new PageImpl<>(List.of(submission), PageRequest.of(0, 10), 1));
-            when(submissionMapper.toUserSubmissionsResponseDTO(submission)).thenReturn(response);
-
-            mockMvc.perform(get("/api/v1/users/{id}/submissions", userId)
-                            .header("Authorization", "Bearer user-token"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.items[0].answer").value("2*x"))
-                    .andExpect(jsonPath("$.items[0].status").value("ACCEPTED"))
-                    .andExpect(jsonPath("$.totalElements").value(1));
-
-            verify(submissionService).listFromUser(userRef, PageRequest.of(0, 10));
-        }
-
-        @Test
-        @DisplayName("Should allow user to list own submissions in problem")
-        void shouldAllowUserToListOwnSubmissionsInProblem() throws Exception {
-            UUID userId = UUID.randomUUID();
-            var userRef = user(userId, null, null);
-            var problemRef = problem(10L);
-            var submission = submission();
-            var response = userSubmissionResponse();
-
-            authenticate("user-token", userId, "ROLE_USER");
-            when(userMapper.toUser(userId)).thenReturn(userRef);
-            when(problemMapper.toProblem(10L)).thenReturn(problemRef);
-            when(submissionService.listFromUserInProblem(userRef, problemRef, PageRequest.of(0, 10)))
-                    .thenReturn(new PageImpl<>(List.of(submission), PageRequest.of(0, 10), 1));
-            when(submissionMapper.toUserSubmissionsResponseDTO(submission)).thenReturn(response);
-
-            mockMvc.perform(get("/api/v1/users/{userId}/problems/{problemId}/submissions", userId, 10L)
-                            .header("Authorization", "Bearer user-token"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.items[0].problem.id").value(10))
-                    .andExpect(jsonPath("$.items[0].answer").value("2*x"))
-                    .andExpect(jsonPath("$.totalElements").value(1));
-
-            verify(submissionService).listFromUserInProblem(userRef, problemRef, PageRequest.of(0, 10));
-        }
     }
 
     @Nested
@@ -312,59 +243,6 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("Should reject another user's submissions list")
-        void shouldRejectAnotherUserSubmissionsList() throws Exception {
-            UUID userId = UUID.randomUUID();
-            UUID anotherUserId = UUID.randomUUID();
-
-            authenticate("user-token", userId, "ROLE_USER");
-
-            mockMvc.perform(get("/api/v1/users/{id}/submissions", anotherUserId)
-                            .header("Authorization", "Bearer user-token"))
-                    .andExpect(status().isForbidden());
-
-            verify(submissionService, never()).listFromUser(any(), any());
-        }
-
-        @Test
-        @DisplayName("Should allow admin to list submissions from any user")
-        void shouldAllowAdminToListSubmissionsFromAnyUser() throws Exception {
-            UUID adminId = UUID.randomUUID();
-            UUID anotherUserId = UUID.randomUUID();
-            var userRef = user(anotherUserId, null, null);
-            var submission = submission();
-            var response = userSubmissionResponse();
-
-            authenticate("admin-token", adminId, "ROLE_ADMIN");
-            when(userMapper.toUser(anotherUserId)).thenReturn(userRef);
-            when(submissionService.listFromUser(userRef, PageRequest.of(0, 10)))
-                    .thenReturn(new PageImpl<>(List.of(submission), PageRequest.of(0, 10), 1));
-            when(submissionMapper.toUserSubmissionsResponseDTO(submission)).thenReturn(response);
-
-            mockMvc.perform(get("/api/v1/users/{id}/submissions", anotherUserId)
-                            .header("Authorization", "Bearer admin-token"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.items[0].answer").value("2*x"));
-
-            verify(submissionService).listFromUser(userRef, PageRequest.of(0, 10));
-        }
-
-        @Test
-        @DisplayName("Should reject another user's submissions in problem list")
-        void shouldRejectAnotherUserSubmissionsInProblemList() throws Exception {
-            UUID userId = UUID.randomUUID();
-            UUID anotherUserId = UUID.randomUUID();
-
-            authenticate("user-token", userId, "ROLE_USER");
-
-            mockMvc.perform(get("/api/v1/users/{userId}/problems/{problemId}/submissions", anotherUserId, 10L)
-                            .header("Authorization", "Bearer user-token"))
-                    .andExpect(status().isForbidden());
-
-            verify(submissionService, never()).listFromUserInProblem(any(), any(), any());
-        }
-
-        @Test
         @DisplayName("Should return unauthorized when access token is missing")
         void shouldReturnUnauthorizedWhenAccessTokenIsMissing() throws Exception {
             mockMvc.perform(get("/api/v1/users"))
@@ -453,34 +331,6 @@ class UserControllerTest {
         user.setUsername(username);
         user.setNickname(nickname);
         return user;
-    }
-
-    private Problem problem(Long id) {
-        var problem = new Problem();
-        problem.setId(id);
-        problem.setTitle("Equation");
-        problem.setDescription("Solve 2x = 4");
-        problem.setDifficulty(ProblemDifficulty.EASY);
-        problem.setType(ProblemType.NUMERIC);
-        return problem;
-    }
-
-    private Submission submission() {
-        var submission = new Submission();
-        submission.setProblem(problem(10L));
-        submission.setAnswer("2*x");
-        submission.setStatus(SubmissionStatus.ACCEPTED);
-        submission.setSubmittedAt(LocalDateTime.of(2026, 7, 15, 20, 0));
-        return submission;
-    }
-
-    private UserSubmissionsResponseDTO userSubmissionResponse() {
-        var problem = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC);
-        return new UserSubmissionsResponseDTO(
-                problem,
-                "2*x",
-                SubmissionStatus.ACCEPTED,
-                LocalDateTime.of(2026, 7, 15, 20, 0));
     }
 
     private void authenticate(String token, UUID userId, String role) {

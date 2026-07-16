@@ -3,20 +3,15 @@ package dev.gustavo.math.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
-import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
 import dev.gustavo.math.entity.Problem;
-import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.enums.ProblemDifficulty;
 import dev.gustavo.math.entity.enums.ProblemType;
-import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.infra.security.SecurityConfig;
 import dev.gustavo.math.infra.security.SecurityFilter;
 import dev.gustavo.math.mapper.ProblemMapper;
-import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.ProblemService;
-import dev.gustavo.math.service.SubmissionService;
 import dev.gustavo.math.service.auth.AccessTokenService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,7 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,13 +56,7 @@ class ProblemControllerTest {
     private ProblemService problemService;
 
     @MockitoBean
-    private SubmissionService submissionService;
-
-    @MockitoBean
     private ProblemMapper problemMapper;
-
-    @MockitoBean
-    private SubmissionMapper submissionMapper;
 
     @Nested
     @DisplayName("Endpoints")
@@ -216,33 +204,6 @@ class ProblemControllerTest {
             verify(problemService).delete(10L);
         }
 
-        @Test
-        @DisplayName("Should allow admin to list problem submissions")
-        void shouldAllowAdminToListProblemSubmissions() throws Exception {
-            UUID adminId = UUID.randomUUID();
-            var problem = new Problem();
-            problem.setId(10L);
-            var submission = new Submission();
-            submission.setAnswer("2*x");
-            submission.setStatus(SubmissionStatus.ACCEPTED);
-            submission.setSubmittedAt(LocalDateTime.of(2026, 7, 15, 20, 0));
-            var response = new ProblemSubmissionsResponseDTO(null, "2*x", SubmissionStatus.ACCEPTED, submission.getSubmittedAt());
-
-            authenticate("admin-token", adminId, "ROLE_ADMIN");
-            when(problemMapper.toProblem(10L)).thenReturn(problem);
-            when(submissionService.listInProblem(problem, PageRequest.of(0, 10)))
-                    .thenReturn(new PageImpl<>(List.of(submission), PageRequest.of(0, 10), 1));
-            when(submissionMapper.toProblemSubmissionsResponseDTO(submission)).thenReturn(response);
-
-            mockMvc.perform(get("/api/v1/problems/10/submissions")
-                            .header("Authorization", "Bearer admin-token"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.items[0].answer").value("2*x"))
-                    .andExpect(jsonPath("$.items[0].status").value("ACCEPTED"))
-                    .andExpect(jsonPath("$.totalElements").value(1));
-
-            verify(submissionService).listInProblem(problem, PageRequest.of(0, 10));
-        }
     }
 
     @Nested
@@ -303,20 +264,6 @@ class ProblemControllerTest {
                     .andExpect(status().isForbidden());
 
             verify(problemService, never()).delete(any());
-        }
-
-        @Test
-        @DisplayName("Should reject problem submissions list by regular user")
-        void shouldRejectProblemSubmissionsListByRegularUser() throws Exception {
-            UUID userId = UUID.randomUUID();
-
-            authenticate("user-token", userId, "ROLE_USER");
-
-            mockMvc.perform(get("/api/v1/problems/10/submissions")
-                            .header("Authorization", "Bearer user-token"))
-                    .andExpect(status().isForbidden());
-
-            verify(submissionService, never()).listInProblem(any(), any());
         }
 
         @Test

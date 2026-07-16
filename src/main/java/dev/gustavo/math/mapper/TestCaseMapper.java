@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 public interface TestCaseMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "problem.id", source = "problem")
+    @Mapping(target = "problem", ignore = true)
     TestCase toTestCase(TestCaseCreateRequestDTO testCase);
 
     @Mapping(target = "id", ignore = true)

@@ -18,17 +18,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -61,7 +65,7 @@ class TestCaseControllerTest {
         @DisplayName("Should allow test case creation by admin")
         void shouldAllowTestCaseCreationByAdmin() throws Exception {
             UUID adminId = UUID.randomUUID();
-            var request = new TestCaseCreateRequestDTO(10L, "{\"x\":2}", "4");
+            var request = new TestCaseCreateRequestDTO("{\"x\":2}", "4");
             var testCase = testCase(10L, "{\"x\":2}", "4");
             var createdTestCase = testCase(10L, "{\"x\":2}", "4");
             createdTestCase.setId(42L);
@@ -69,10 +73,10 @@ class TestCaseControllerTest {
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
             when(testCaseMapper.toTestCase(any(TestCaseCreateRequestDTO.class))).thenReturn(testCase);
-            when(testCaseService.create(testCase)).thenReturn(createdTestCase);
+            when(testCaseService.create(testCase, 10L)).thenReturn(createdTestCase);
             when(testCaseMapper.toTestCaseResponseDTO(createdTestCase)).thenReturn(response);
 
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .header("Authorization", "Bearer admin-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -82,7 +86,30 @@ class TestCaseControllerTest {
                     .andExpect(jsonPath("$.variableValues").value("{\"x\":2}"))
                     .andExpect(jsonPath("$.expectedAnswer").value("4"));
 
-            verify(testCaseService).create(testCase);
+            verify(testCaseService).create(testCase, 10L);
+        }
+
+        @Test
+        @DisplayName("Should allow admin to list test cases by problem")
+        void shouldAllowAdminToListTestCasesByProblem() throws Exception {
+            UUID adminId = UUID.randomUUID();
+            var testCase = testCase(10L, "{\"x\":2}", "4");
+            testCase.setId(42L);
+            var response = new TestCaseResponseDTO(42L, 10L, "{\"x\":2}", "4");
+
+            authenticate("admin-token", adminId, "ROLE_ADMIN");
+            when(testCaseService.listByProblem(10L, PageRequest.of(0, 10)))
+                    .thenReturn(new PageImpl<>(List.of(testCase), PageRequest.of(0, 10), 1));
+            when(testCaseMapper.toTestCaseResponseDTO(testCase)).thenReturn(response);
+
+            mockMvc.perform(get("/api/v1/problems/10/testcases")
+                            .header("Authorization", "Bearer admin-token"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.items[0].id").value(42))
+                    .andExpect(jsonPath("$.items[0].problem").value(10))
+                    .andExpect(jsonPath("$.totalElements").value(1));
+
+            verify(testCaseService).listByProblem(10L, PageRequest.of(0, 10));
         }
 
         @Test
@@ -136,17 +163,31 @@ class TestCaseControllerTest {
         @DisplayName("Should reject test case creation by regular user")
         void shouldRejectTestCaseCreationByRegularUser() throws Exception {
             UUID userId = UUID.randomUUID();
-            var request = new TestCaseCreateRequestDTO(10L, "{\"x\":2}", "4");
+            var request = new TestCaseCreateRequestDTO("{\"x\":2}", "4");
 
             authenticate("user-token", userId, "ROLE_USER");
 
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .header("Authorization", "Bearer user-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isForbidden());
 
-            verify(testCaseService, never()).create(any());
+            verify(testCaseService, never()).create(any(), any());
+        }
+
+        @Test
+        @DisplayName("Should reject test case list by regular user")
+        void shouldRejectTestCaseListByRegularUser() throws Exception {
+            UUID userId = UUID.randomUUID();
+
+            authenticate("user-token", userId, "ROLE_USER");
+
+            mockMvc.perform(get("/api/v1/problems/10/testcases")
+                            .header("Authorization", "Bearer user-token"))
+                    .andExpect(status().isForbidden());
+
+            verify(testCaseService, never()).listByProblem(any(), any());
         }
 
         @Test
@@ -183,11 +224,10 @@ class TestCaseControllerTest {
         @Test
         @DisplayName("Should return unauthorized when access token is missing")
         void shouldReturnUnauthorizedWhenAccessTokenIsMissing() throws Exception {
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "variableValues": "{\\"x\\":2}",
                                       "expectedAnswer": "4"
                                     }
@@ -201,12 +241,11 @@ class TestCaseControllerTest {
             when(accessTokenService.validate("invalid-token"))
                     .thenThrow(new TokenDecodingException("failed to decode"));
 
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .header("Authorization", "Bearer invalid-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "variableValues": "{\\"x\\":2}",
                                       "expectedAnswer": "4"
                                     }
@@ -219,48 +258,24 @@ class TestCaseControllerTest {
     @DisplayName("Validation")
     class Validation {
 
-        @Test
-        @DisplayName("Should reject test case creation without problem")
-        void shouldRejectTestCaseCreationWithoutProblem() throws Exception {
-            UUID adminId = UUID.randomUUID();
-
-            authenticate("admin-token", adminId, "ROLE_ADMIN");
-
-            mockMvc.perform(post("/api/v1/testcases")
-                            .header("Authorization", "Bearer admin-token")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                      "variableValues": "{\\"x\\":2}",
-                                      "expectedAnswer": "4"
-                                    }
-                                    """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.errors.problem").value("Problem id is required"));
-
-            verify(testCaseService, never()).create(any());
-        }
-
-        @Test
         @DisplayName("Should reject test case creation without variable values")
         void shouldRejectTestCaseCreationWithoutVariableValues() throws Exception {
             UUID adminId = UUID.randomUUID();
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
 
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .header("Authorization", "Bearer admin-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "expectedAnswer": "4"
                                     }
                                     """))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors.variableValues").value("Variable values cannot be null"));
 
-            verify(testCaseService, never()).create(any());
+            verify(testCaseService, never()).create(any(), any());
         }
 
         @Test
@@ -270,19 +285,18 @@ class TestCaseControllerTest {
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
 
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .header("Authorization", "Bearer admin-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "variableValues": "{\\"x\\":2}"
                                     }
                                     """))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors.expectedAnswer").value("Expected output is required"));
 
-            verify(testCaseService, never()).create(any());
+            verify(testCaseService, never()).create(any(), any());
         }
 
         @Test
@@ -292,12 +306,11 @@ class TestCaseControllerTest {
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
 
-            mockMvc.perform(post("/api/v1/testcases")
+            mockMvc.perform(post("/api/v1/problems/10/testcases")
                             .header("Authorization", "Bearer admin-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "variableValues": "{\\"x\\":2}",
                                       "expectedAnswer": ""
                                     }
@@ -305,7 +318,7 @@ class TestCaseControllerTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors.expectedAnswer").value("Expected output is required"));
 
-            verify(testCaseService, never()).create(any());
+            verify(testCaseService, never()).create(any(), any());
         }
     }
 

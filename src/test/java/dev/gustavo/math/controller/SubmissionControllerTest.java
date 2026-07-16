@@ -78,15 +78,14 @@ class SubmissionControllerTest {
 
             authenticate("user-token", userId, "ROLE_USER");
             when(submissionMapper.toSubmission(any())).thenReturn(submission);
-            when(submissionService.create(submission, userId)).thenReturn(createdSubmission);
+            when(submissionService.create(submission, 10L, userId)).thenReturn(createdSubmission);
             when(submissionMapper.toSubmissionResponseDTO(createdSubmission)).thenReturn(response);
 
-            mockMvc.perform(post("/api/v1/submissions")
+            mockMvc.perform(post("/api/v1/problems/10/submissions")
                             .header("Authorization", "Bearer user-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "answer": "2*x"
                                     }
                                     """))
@@ -95,13 +94,14 @@ class SubmissionControllerTest {
                     .andExpect(jsonPath("$.problem").value(10))
                     .andExpect(jsonPath("$.status").value("ACCEPTED"));
 
-            verify(submissionService).create(submission, userId);
+            verify(submissionService).create(submission, 10L, userId);
         }
 
         @Test
-        @DisplayName("Should allow admin to list all submissions")
-        void shouldAllowAdminToListAllSubmissions() throws Exception {
+        @DisplayName("Should allow admin to list submissions with filters")
+        void shouldAllowAdminToListSubmissionsWithFilters() throws Exception {
             UUID adminId = UUID.randomUUID();
+            UUID userId = UUID.randomUUID();
             var problem = new Problem();
             problem.setId(10L);
             var submission = new Submission();
@@ -112,18 +112,48 @@ class SubmissionControllerTest {
             var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.ACCEPTED, submission.getSubmittedAt());
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
-            when(submissionService.findAll(PageRequest.of(0, 10)))
+            when(submissionService.findByFilters(userId, 10L, SubmissionStatus.ACCEPTED, adminId, true, PageRequest.of(0, 10)))
                     .thenReturn(new PageImpl<>(List.of(submission), PageRequest.of(0, 10), 1));
             when(submissionMapper.toSubmissionResponseDTO(submission)).thenReturn(response);
 
             mockMvc.perform(get("/api/v1/submissions")
+                            .param("userId", userId.toString())
+                            .param("problemId", "10")
+                            .param("status", "ACCEPTED")
                             .header("Authorization", "Bearer admin-token"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.items[0].id").value(42))
                     .andExpect(jsonPath("$.items[0].problem").value(10))
                     .andExpect(jsonPath("$.totalElements").value(1));
 
-            verify(submissionService).findAll(PageRequest.of(0, 10));
+            verify(submissionService).findByFilters(userId, 10L, SubmissionStatus.ACCEPTED, adminId, true, PageRequest.of(0, 10));
+        }
+
+        @Test
+        @DisplayName("Should allow user to list own submissions")
+        void shouldAllowUserToListOwnSubmissions() throws Exception {
+            UUID userId = UUID.randomUUID();
+            var problem = new Problem();
+            problem.setId(10L);
+            var submission = new Submission();
+            submission.setId(42L);
+            submission.setProblem(problem);
+            submission.setStatus(SubmissionStatus.ACCEPTED);
+            submission.setSubmittedAt(LocalDateTime.of(2026, 7, 15, 20, 0));
+            var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.ACCEPTED, submission.getSubmittedAt());
+
+            authenticate("user-token", userId, "ROLE_USER");
+            when(submissionService.findByFilters(null, null, null, userId, false, PageRequest.of(0, 10)))
+                    .thenReturn(new PageImpl<>(List.of(submission), PageRequest.of(0, 10), 1));
+            when(submissionMapper.toSubmissionResponseDTO(submission)).thenReturn(response);
+
+            mockMvc.perform(get("/api/v1/submissions")
+                            .header("Authorization", "Bearer user-token"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.items[0].id").value(42))
+                    .andExpect(jsonPath("$.totalElements").value(1));
+
+            verify(submissionService).findByFilters(null, null, null, userId, false, PageRequest.of(0, 10));
         }
 
         @Test
@@ -157,15 +187,14 @@ class SubmissionControllerTest {
 
             authenticate("user-token", userId, "ROLE_USER");
             when(submissionMapper.toSubmission(any())).thenReturn(submission);
-            when(submissionService.create(any(Submission.class), eq(userId))).thenReturn(createdSubmission);
+            when(submissionService.create(any(Submission.class), eq(10L), eq(userId))).thenReturn(createdSubmission);
             when(submissionMapper.toSubmissionResponseDTO(createdSubmission)).thenReturn(response);
 
-            mockMvc.perform(post("/api/v1/submissions")
+            mockMvc.perform(post("/api/v1/problems/10/submissions")
                             .header("Authorization", "Bearer user-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "answer": "2*x",
                                       "user": "00000000-0000-0000-0000-000000000000"
                                     }
@@ -173,22 +202,26 @@ class SubmissionControllerTest {
                     .andExpect(status().isCreated());
 
             ArgumentCaptor<Submission> submissionCaptor = ArgumentCaptor.forClass(Submission.class);
-            verify(submissionService).create(submissionCaptor.capture(), eq(userId));
+            verify(submissionService).create(submissionCaptor.capture(), eq(10L), eq(userId));
             assertNull(submissionCaptor.getValue().getUser());
         }
 
         @Test
-        @DisplayName("Should reject all submissions list for regular user")
-        void shouldRejectAllSubmissionsListForRegularUser() throws Exception {
+        @DisplayName("Should reject another user's submissions list")
+        void shouldRejectAnotherUsersSubmissionsList() throws Exception {
             UUID userId = UUID.randomUUID();
+            UUID anotherUserId = UUID.randomUUID();
 
             authenticate("user-token", userId, "ROLE_USER");
+            when(submissionService.findByFilters(anotherUserId, null, null, userId, false, PageRequest.of(0, 10)))
+                    .thenThrow(new ForbiddenOperationException("You cannot access another user's submissions"));
 
             mockMvc.perform(get("/api/v1/submissions")
+                            .param("userId", anotherUserId.toString())
                             .header("Authorization", "Bearer user-token"))
                     .andExpect(status().isForbidden());
 
-            verify(submissionService, never()).findAll(any());
+            verify(submissionService).findByFilters(anotherUserId, null, null, userId, false, PageRequest.of(0, 10));
         }
 
         @Test
@@ -283,45 +316,20 @@ class SubmissionControllerTest {
     class Validation {
 
         @Test
-        @DisplayName("Should reject submission creation without problem")
-        void shouldRejectSubmissionCreationWithoutProblem() throws Exception {
-            UUID userId = UUID.randomUUID();
-
-            authenticate("user-token", userId, "ROLE_USER");
-
-            mockMvc.perform(post("/api/v1/submissions")
-                            .header("Authorization", "Bearer user-token")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                      "answer": "2*x"
-                                    }
-                                    """))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.errors.problem").value("Problem id is required"));
-
-            verify(submissionService, never()).create(any(), any());
-        }
-
-        @Test
         @DisplayName("Should reject submission creation without answer")
         void shouldRejectSubmissionCreationWithoutAnswer() throws Exception {
             UUID userId = UUID.randomUUID();
 
             authenticate("user-token", userId, "ROLE_USER");
 
-            mockMvc.perform(post("/api/v1/submissions")
+            mockMvc.perform(post("/api/v1/problems/10/submissions")
                             .header("Authorization", "Bearer user-token")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                      "problem": 10
-                                    }
-                                    """))
+                            .content("{}"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors.answer").value("Answer is required"));
 
-            verify(submissionService, never()).create(any(), any());
+            verify(submissionService, never()).create(any(), any(), any());
         }
 
         @Test
@@ -331,19 +339,18 @@ class SubmissionControllerTest {
 
             authenticate("user-token", userId, "ROLE_USER");
 
-            mockMvc.perform(post("/api/v1/submissions")
+            mockMvc.perform(post("/api/v1/problems/10/submissions")
                             .header("Authorization", "Bearer user-token")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "problem": 10,
                                       "answer": ""
                                     }
                                     """))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.errors.answer").value("Answer is required"));
 
-            verify(submissionService, never()).create(any(), any());
+            verify(submissionService, never()).create(any(), any(), any());
         }
     }
 

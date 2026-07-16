@@ -4,6 +4,7 @@ import dev.gustavo.math.controller.doc.ISubmissionController;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
+import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.SubmissionService;
 import jakarta.validation.Valid;
@@ -16,48 +17,64 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/submissions")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class SubmissionController implements ISubmissionController {
 
     private final SubmissionService submissionService;
     private final SubmissionMapper submissionMapper;
 
-    @GetMapping
+    @GetMapping("/submissions")
     @ResponseStatus(HttpStatus.OK)
     public PageableResponseDTO<SubmissionResponseDTO> findAll(@RequestParam(defaultValue = "0") Integer page,
-                                                              @RequestParam(defaultValue = "10") Integer size) {
-        var submissionsPage = submissionService.findAll(PageRequest.of(page, size))
+                                                              @RequestParam(defaultValue = "10") Integer size,
+                                                              @RequestParam(required = false) UUID userId,
+                                                              @RequestParam(required = false) Long problemId,
+                                                              @RequestParam(required = false) SubmissionStatus status,
+                                                              Authentication authentication) {
+        var submissionsPage = submissionService.findByFilters(
+                        userId,
+                        problemId,
+                        status,
+                        (UUID) authentication.getPrincipal(),
+                        isAdmin(authentication),
+                        PageRequest.of(page, size))
                 .map(submissionMapper::toSubmissionResponseDTO);
         return new PageableResponseDTO<>(submissionsPage);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/submissions/{id}")
     @ResponseStatus(HttpStatus.OK)
     public SubmissionResponseDTO findById(@PathVariable Long id, Authentication authentication) {
         var userSubmission = submissionService.findByIdForUser(
                 id,
                 (UUID) authentication.getPrincipal(),
-                authentication.getAuthorities().stream()
-                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")));
+                isAdmin(authentication));
 
         return submissionMapper.toSubmissionResponseDTO(userSubmission);
     }
 
-    @PostMapping
+    @PostMapping("/problems/{problemId}/submissions")
     @ResponseStatus(HttpStatus.CREATED)
-    public SubmissionResponseDTO create(@Valid @RequestBody SubmissionRequestDTO submissionCreateRequest,
+    public SubmissionResponseDTO create(@PathVariable Long problemId,
+                                        @Valid @RequestBody SubmissionRequestDTO submissionCreateRequest,
                                         Authentication authentication) {
         var submission = submissionService.create(
                 submissionMapper.toSubmission(submissionCreateRequest),
+                problemId,
                 (UUID) authentication.getPrincipal());
         return submissionMapper.toSubmissionResponseDTO(submission);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/submissions/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         submissionService.delete(id);
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
     }
 
 }

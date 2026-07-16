@@ -3,13 +3,10 @@ package dev.gustavo.math.controller;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
-import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
 import dev.gustavo.math.controller.doc.IProblemController;
 import dev.gustavo.math.mapper.ProblemMapper;
-import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.ProblemService;
-import dev.gustavo.math.service.SubmissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,9 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProblemController implements IProblemController {
 
     private final ProblemService problemService;
-    private final SubmissionService submissionService;
     private final ProblemMapper problemMapper;
-    private final SubmissionMapper submissionMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -59,18 +54,6 @@ public class ProblemController implements IProblemController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         problemService.delete(id);
-    }
-
-    @GetMapping("/{id}/submissions")
-    @ResponseStatus(HttpStatus.OK)
-    public PageableResponseDTO<ProblemSubmissionsResponseDTO> listProblemSubmissions(@PathVariable Long id,
-                                                                                       @RequestParam(defaultValue = "0") Integer page,
-                                                                                       @RequestParam(defaultValue = "10") Integer size) {
-        var problemSubmissions = submissionService.listInProblem(
-                        problemMapper.toProblem(id),
-                        PageRequest.of(page, size))
-                .map(submissionMapper::toProblemSubmissionsResponseDTO);
-        return new PageableResponseDTO<>(problemSubmissions);
     }
 
 }

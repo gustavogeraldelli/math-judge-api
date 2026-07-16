@@ -75,17 +75,17 @@ class SubmissionServiceTest {
     @DisplayName("Find Submissions")
     class FindSubmissions {
         @Test
-        @DisplayName("Should return a paginated list of all submissions")
-        void findAllShouldReturnPaginatedSubmissions() {
+        @DisplayName("Should allow admin to list submissions without filters")
+        void findByFiltersShouldAllowAdminWithoutFilters() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
-            when(submissionRepository.findAll(pageable)).thenReturn(submissionPage);
+            when(submissionRepository.findByFilters(null, null, null, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.findAll(pageable);
+            Page<Submission> submissions = submissionService.findByFilters(null, null, null, UUID.randomUUID(), true, pageable);
 
             assertFalse(submissions.isEmpty());
             assertEquals(1, submissions.getTotalElements());
-            verify(submissionRepository, times(1)).findAll(pageable);
+            verify(submissionRepository, times(1)).findByFilters(null, null, null, pageable);
         }
 
         @Test
@@ -148,73 +148,71 @@ class SubmissionServiceTest {
     @DisplayName("List Submission")
     class ListSubmission {
         @Test
-        @DisplayName("Should return a paginated list of all submissions from a user")
-        void listShouldReturnPagedSubmissionsFromUserWhenUserExists() {
+        @DisplayName("Should allow user to list own submissions")
+        void findByFiltersShouldAllowUserToListOwnSubmissions() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doNothing().when(userService).existsById(userId);
-            when(submissionRepository.findByUserIdWithProblem(userId, pageable)).thenReturn(submissionPage);
+            when(submissionRepository.findByFilters(userId, null, null, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.listFromUser(user, pageable);
+            Page<Submission> submissions = submissionService.findByFilters(null, null, null, userId, false, pageable);
 
             assertFalse(submissions.getContent().isEmpty());
             assertEquals(1, submissions.getTotalElements());
             verify(userService, times(1)).existsById(userId);
-            verify(submissionRepository, times(1)).findByUserIdWithProblem(userId, pageable);
+            verify(submissionRepository, times(1)).findByFilters(userId, null, null, pageable);
         }
 
         @Test
-        @DisplayName("Should return a paginated list of all submissions in a problem")
-        void listShouldReturnPagedSubmissionsInProblemWhenProblemExists() {
-            PageRequest pageable = PageRequest.of(0, 10);
-            Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
-            doNothing().when(problemService).existsById(problemId);
-            when(submissionRepository.findByProblemIdWithUser(problemId, pageable)).thenReturn(submissionPage);
-
-            Page<Submission> submissions = submissionService.listInProblem(problem, pageable);
-
-            assertFalse(submissions.getContent().isEmpty());
-            assertEquals(1, submissions.getTotalElements());
-            verify(problemService, times(1)).existsById(problemId);
-            verify(submissionRepository, times(1)).findByProblemIdWithUser(problemId, pageable);
-        }
-
-        @Test
-        @DisplayName("Should return a paginated list of all submissions from a user in a problem")
-        void listShouldReturnPagedSubmissionsFromUserInProblemWhenBothExists() {
+        @DisplayName("Should allow admin to filter submissions by user, problem and status")
+        void findByFiltersShouldAllowAdminWithFilters() {
             PageRequest pageable = PageRequest.of(0, 10);
             Page<Submission> submissionPage = new PageImpl<>(List.of(submission));
             doNothing().when(userService).existsById(userId);
             doNothing().when(problemService).existsById(problemId);
-            when(submissionRepository.findByUserAndProblem(user, problem, pageable)).thenReturn(submissionPage);
+            when(submissionRepository.findByFilters(userId, problemId, SubmissionStatus.ACCEPTED, pageable)).thenReturn(submissionPage);
 
-            Page<Submission> submissions = submissionService.listFromUserInProblem(user, problem, pageable);
+            Page<Submission> submissions = submissionService.findByFilters(userId, problemId, SubmissionStatus.ACCEPTED, UUID.randomUUID(), true, pageable);
 
-            assertFalse(submissions.isEmpty());
+            assertFalse(submissions.getContent().isEmpty());
             assertEquals(1, submissions.getTotalElements());
             verify(userService, times(1)).existsById(userId);
             verify(problemService, times(1)).existsById(problemId);
-            verify(submissionRepository, times(1)).findByUserAndProblem(user, problem, pageable);
+            verify(submissionRepository, times(1)).findByFilters(userId, problemId, SubmissionStatus.ACCEPTED, pageable);
+        }
+
+        @Test
+        @DisplayName("Should reject regular user filtering by another user")
+        void findByFiltersShouldRejectRegularUserFilteringByAnotherUser() {
+            PageRequest pageable = PageRequest.of(0, 10);
+            UUID anotherUserId = UUID.randomUUID();
+
+            assertThrows(ForbiddenOperationException.class,
+                    () -> submissionService.findByFilters(anotherUserId, null, null, userId, false, pageable));
+
+            verify(submissionRepository, never()).findByFilters(any(), any(), any(), any());
         }
 
         @Test
         @DisplayName("Should throw EntityNotFoundException when user does not exist")
-        void listFromUserShouldThrowExceptionWhenUserNotFound() {
+        void findByFiltersShouldThrowExceptionWhenUserNotFound() {
             PageRequest pageable = PageRequest.of(0, 10);
             doThrow(new EntityNotFoundException("User", userId.toString())).when(userService).existsById(userId);
 
-            assertThrows(EntityNotFoundException.class, () -> submissionService.listFromUser(user, pageable));
-            verify(submissionRepository, never()).findByUserIdWithProblem(any(UUID.class), any(PageRequest.class));
+            assertThrows(EntityNotFoundException.class,
+                    () -> submissionService.findByFilters(userId, null, null, UUID.randomUUID(), true, pageable));
+            verify(submissionRepository, never()).findByFilters(any(), any(), any(), any());
         }
 
         @Test
         @DisplayName("Should throw EntityNotFoundException when problem does not exist")
-        void listInProblemShouldThrowExceptionWhenProblemNotFound() {
+        void findByFiltersShouldThrowExceptionWhenProblemNotFound() {
             PageRequest pageable = PageRequest.of(0, 10);
             doThrow(new EntityNotFoundException("Problem", problemId.toString())).when(problemService).existsById(problemId);
 
-            assertThrows(EntityNotFoundException.class, () -> submissionService.listInProblem(problem, pageable));
-            verify(submissionRepository, never()).findByProblemIdWithUser(anyLong(), any(PageRequest.class));
+            assertThrows(EntityNotFoundException.class,
+                    () -> submissionService.findByFilters(null, problemId, null, UUID.randomUUID(), true, pageable));
+            verify(submissionRepository, never()).findByFilters(any(), any(), any(), any());
         }
     }
 

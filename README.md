@@ -13,7 +13,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
 - **Maven**
 - **PostgreSQL**, **Flyway**, **Spring Data JPA**
 - **Spring Security** with **JWT**
-- **JUnit 5** and **Mockito** for tests
+- **JUnit 5**, **Mockito** and **Testcontainers** for tests
 - **Springdoc OpenAPI (Swagger)** for API documentation
 - **MapStruct** and **Lombok** for productivity
 - **exp4j** for mathematical expression evaluation
@@ -71,21 +71,35 @@ The API was designed to be a complete and efficient solution for mathematical pr
     ```
 
 ### Users `/api/v1/users`
+- `GET /api/v1/users` → list users (admin only)
 - `GET /api/v1/users/{id}` → get user info (self or admin)
-- `GET /api/v1/{id}/submissions` → list all submissions of a user (self or admin)
-- `GET /api/v1/{userId}/problems/{problemId}/submissions` → list all submissions of a user for a specific problem (self or admin)
-
+- `PUT /api/v1/users/{id}` → update user info (self or admin)
+- `DELETE /api/v1/users/{id}` → delete user (self or admin)
 
 ### Problems `/api/v1/problems`
 - `GET /api/v1/problems` → list all problems (user/admin)
-- `GET /api/v1/problems/{id}/submissions` → list all submissions for a problem (admin only)
+- `GET /api/v1/problems/{id}` → get problem details (user/admin)
+- `POST /api/v1/problems` → create a problem (admin only)
+- `PUT /api/v1/problems/{id}` → update a problem (admin only)
+- `DELETE /api/v1/problems/{id}` → delete a problem (admin only)
+
+### Test cases
+- `GET /api/v1/problems/{problemId}/testcases` → list test cases for a problem (admin only)
+- `POST /api/v1/problems/{problemId}/testcases` → create a test case for a problem (admin only)
+- `PUT /api/v1/testcases/{id}` → update a test case (admin only)
+- `DELETE /api/v1/testcases/{id}` → delete a test case (admin only)
 
 ### Submissions `/api/v1/submissions`
-- `POST /api/v1/submissions` → submits a solution to a problem
+- `GET /api/v1/submissions` → list submissions with optional filters
+  - Filters: `userId`, `problemId`, `status`, `page`, `size`
+  - Admin users can query any submission.
+  - Regular users can only query their own submissions.
+- `GET /api/v1/submissions/{id}` → get a submission (owner or admin)
+- `POST /api/v1/problems/{problemId}/submissions` → submit a solution to a problem
+- `DELETE /api/v1/submissions/{id}` → delete a submission (admin only)
   - Payload
     ```json
     {
-      "problem": 1,
       "answer": "2x"
     }
     ```
@@ -156,9 +170,14 @@ src/
   docker-compose -f docker/docker-compose.yml up -d
   ```
 
-- Run the tests
+- Run the fast test suite
   ```bash
   ./mvnw test
+  ```
+
+- Run the full verification, including Testcontainers integration tests
+  ```bash
+  ./mvnw verify
   ```
 
 - Run the application
@@ -168,7 +187,7 @@ src/
 
 - Stop the database
   ```bash
-  docker-compose docker/docker-compose.yml down
+  docker-compose -f docker/docker-compose.yml down
   ```
 
 

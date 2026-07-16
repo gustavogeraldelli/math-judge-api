@@ -1,5 +1,6 @@
 package dev.gustavo.math.controller.doc;
 
+import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseCreateRequestDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseResponseDTO;
 import dev.gustavo.math.controller.dto.testcase.TestCaseUpdateRequestDTO;
@@ -17,7 +18,23 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface ITestCaseController {
 
     @Operation(
-            summary = "Create a test case (admin only)",
+            summary = "List test cases for a problem (admin only)",
+            security = @SecurityRequirement(name = "BearerAuth")
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Test cases retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Problem not found",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    PageableResponseDTO<TestCaseResponseDTO> listByProblem(Long problemId, Integer page, Integer size);
+
+    @Operation(
+            summary = "Create a test case for a problem (admin only)",
             security = @SecurityRequirement(name = "BearerAuth")
     )
     @ApiResponses(value = {
@@ -32,7 +49,7 @@ public interface ITestCaseController {
             @ApiResponse(responseCode = "404", description = "Problem not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    TestCaseResponseDTO create(TestCaseCreateRequestDTO testCaseCreateRequest);
+    TestCaseResponseDTO create(Long problemId, TestCaseCreateRequestDTO testCaseCreateRequest);
 
     @Operation(
             summary = "Update test case (admin only)",

@@ -3,7 +3,6 @@ package dev.gustavo.math.controller.doc;
 import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
-import dev.gustavo.math.controller.dto.problem.ProblemSubmissionsResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
 import dev.gustavo.math.controller.advice.ErrorResponseDTO;
 import dev.gustavo.math.controller.advice.ValidationErrorResponseDTO;
@@ -104,24 +103,4 @@ public interface IProblemController {
     })
     void delete(Long id);
 
-    @Operation(
-            summary = "List all submissions for a problem (admin only)",
-            security = @SecurityRequirement(name = "BearerAuth")
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Submissions retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = PageableResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Missing, invalid or expired access token",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "403", description = "Forbidden",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Problem not found",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
-    })
-    PageableResponseDTO<ProblemSubmissionsResponseDTO> listProblemSubmissions(
-            Long id,
-            @Parameter(description = "Page number, starting at 0", example = "0")
-            Integer page,
-            @Parameter(description = "Number of items per page", example = "10")
-            Integer size);
 }
