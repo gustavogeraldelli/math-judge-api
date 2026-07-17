@@ -36,6 +36,9 @@ public class Problem {
     @Column(nullable = false, updatable = false, length = 32)
     private ProblemType type;
 
+    @Column(columnDefinition = "TEXT")
+    private String variables;
+
     @OneToMany(mappedBy = "problem",  fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private List<TestCase> testCases;
 

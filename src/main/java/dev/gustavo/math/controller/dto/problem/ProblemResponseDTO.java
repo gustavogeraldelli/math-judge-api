@@ -4,6 +4,8 @@ import dev.gustavo.math.entity.enums.ProblemDifficulty;
 import dev.gustavo.math.entity.enums.ProblemType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.List;
+
 @Schema(description = "Response body representing a Problem")
 public record ProblemResponseDTO(
         @Schema(description = "Unique identifier of the problem", type = "long", example = "1")
@@ -19,6 +21,9 @@ public record ProblemResponseDTO(
         ProblemDifficulty difficulty,
 
         @Schema(description = "Problem type", example = "EXPRESSION")
-        ProblemType type
+        ProblemType type,
+
+        @Schema(description = "Valid variable names for expression problems", example = "[\"x\"]")
+        List<String> variables
 ) {
 }

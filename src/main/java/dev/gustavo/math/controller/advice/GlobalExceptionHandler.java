@@ -3,6 +3,7 @@ package dev.gustavo.math.controller.advice;
 import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.exception.InvalidLoginException;
+import dev.gustavo.math.exception.InvalidProblemVariablesException;
 import dev.gustavo.math.exception.InvalidRefreshTokenException;
 import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
@@ -56,6 +57,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ForbiddenOperationException.class)
     public ResponseEntity<ErrorResponseDTO> handleForbiddenOperationException(ForbiddenOperationException e) {
         return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidProblemVariablesException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidProblemVariablesException(InvalidProblemVariablesException e) {
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -5,6 +5,8 @@ import dev.gustavo.math.entity.enums.ProblemType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 @Schema(description = "Request body for partially updating a Problem")
 public record ProblemUpdateRequestDTO(
         @Schema(description = "New title of the problem", example = "Find the second derivative")
@@ -18,6 +20,9 @@ public record ProblemUpdateRequestDTO(
         ProblemDifficulty difficulty,
 
         @Schema(description = "New problem type (NUMERIC or EXPRESSION)", example = "EXPRESSION")
-        ProblemType type
+        ProblemType type,
+
+        @Schema(description = "Valid variable names for expression problems", example = "[\"x\", \"y\"]")
+        List<String> variables
 ) {
 }

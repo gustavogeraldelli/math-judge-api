@@ -72,7 +72,7 @@ class ProblemControllerTest {
             problem.setDescription("Solve 2x = 4");
             problem.setDifficulty(ProblemDifficulty.EASY);
             problem.setType(ProblemType.NUMERIC);
-            var response = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC);
+            var response = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC, List.of());
 
             authenticate("user-token", userId, "ROLE_USER");
             when(problemService.findAll(PageRequest.of(0, 10)))
@@ -99,7 +99,7 @@ class ProblemControllerTest {
             problem.setDescription("Solve 2x = 4");
             problem.setDifficulty(ProblemDifficulty.EASY);
             problem.setType(ProblemType.NUMERIC);
-            var response = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC);
+            var response = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC, List.of());
 
             authenticate("user-token", userId, "ROLE_USER");
             when(problemService.findById(10L)).thenReturn(problem);
@@ -122,7 +122,8 @@ class ProblemControllerTest {
                     "Equation",
                     "Solve 2x = 4",
                     ProblemDifficulty.EASY,
-                    ProblemType.NUMERIC);
+                    ProblemType.NUMERIC,
+                    List.of());
             var problem = new Problem();
             problem.setTitle("Equation");
             problem.setDescription("Solve 2x = 4");
@@ -134,7 +135,7 @@ class ProblemControllerTest {
             createdProblem.setDescription("Solve 2x = 4");
             createdProblem.setDifficulty(ProblemDifficulty.EASY);
             createdProblem.setType(ProblemType.NUMERIC);
-            var response = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC);
+            var response = new ProblemResponseDTO(10L, "Equation", "Solve 2x = 4", ProblemDifficulty.EASY, ProblemType.NUMERIC, List.of());
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
             when(problemMapper.toProblem(any(ProblemCreateRequestDTO.class))).thenReturn(problem);
@@ -160,7 +161,8 @@ class ProblemControllerTest {
                     "Updated equation",
                     "Solve 3x = 9",
                     ProblemDifficulty.MEDIUM,
-                    ProblemType.NUMERIC);
+                    ProblemType.NUMERIC,
+                    List.of());
             var problem = new Problem();
             problem.setTitle("Updated equation");
             problem.setDescription("Solve 3x = 9");
@@ -172,7 +174,7 @@ class ProblemControllerTest {
             updatedProblem.setDescription("Solve 3x = 9");
             updatedProblem.setDifficulty(ProblemDifficulty.MEDIUM);
             updatedProblem.setType(ProblemType.NUMERIC);
-            var response = new ProblemResponseDTO(10L, "Updated equation", "Solve 3x = 9", ProblemDifficulty.MEDIUM, ProblemType.NUMERIC);
+            var response = new ProblemResponseDTO(10L, "Updated equation", "Solve 3x = 9", ProblemDifficulty.MEDIUM, ProblemType.NUMERIC, List.of());
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
             when(problemMapper.toProblem(any(ProblemUpdateRequestDTO.class))).thenReturn(problem);
@@ -218,7 +220,8 @@ class ProblemControllerTest {
                     "Equation",
                     "Solve 2x = 4",
                     ProblemDifficulty.EASY,
-                    ProblemType.NUMERIC);
+                    ProblemType.NUMERIC,
+                    List.of());
 
             authenticate("user-token", userId, "ROLE_USER");
 
@@ -239,7 +242,8 @@ class ProblemControllerTest {
                     "Updated equation",
                     "Solve 3x = 9",
                     ProblemDifficulty.MEDIUM,
-                    ProblemType.NUMERIC);
+                    ProblemType.NUMERIC,
+                    List.of());
 
             authenticate("user-token", userId, "ROLE_USER");
 
@@ -389,7 +393,8 @@ class ProblemControllerTest {
                     "a".repeat(65),
                     "Solve 2x = 4",
                     ProblemDifficulty.EASY,
-                    ProblemType.NUMERIC);
+                    ProblemType.NUMERIC,
+                    List.of());
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
 
@@ -411,7 +416,8 @@ class ProblemControllerTest {
                     "",
                     "Solve 3x = 9",
                     ProblemDifficulty.MEDIUM,
-                    ProblemType.NUMERIC);
+                    ProblemType.NUMERIC,
+                    List.of());
 
             authenticate("admin-token", adminId, "ROLE_ADMIN");
 

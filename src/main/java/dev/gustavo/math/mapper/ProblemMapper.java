@@ -4,8 +4,11 @@ import dev.gustavo.math.controller.dto.problem.ProblemCreateRequestDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemResponseDTO;
 import dev.gustavo.math.controller.dto.problem.ProblemUpdateRequestDTO;
 import dev.gustavo.math.entity.Problem;
+import dev.gustavo.math.util.ProblemVariables;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ProblemMapper {
@@ -26,6 +29,14 @@ public interface ProblemMapper {
         Problem problem = new Problem();
         problem.setId(id);
         return problem;
+    }
+
+    default String map(List<String> variables) {
+        return ProblemVariables.toJson(variables);
+    }
+
+    default List<String> map(String variables) {
+        return ProblemVariables.fromJson(variables);
     }
 
 }

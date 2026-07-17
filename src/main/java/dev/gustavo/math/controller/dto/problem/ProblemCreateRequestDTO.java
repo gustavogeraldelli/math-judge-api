@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 @Schema(description = "Request body for creating a Problem")
 public record ProblemCreateRequestDTO(
         @Schema(description = "Title of the problem", example = "Find the derivative")
@@ -24,6 +26,9 @@ public record ProblemCreateRequestDTO(
 
         @Schema(description = "Problem type (NUMERIC or EXPRESSION)", example = "NUMERIC")
         @NotNull(message = "Type is required")
-        ProblemType type
+        ProblemType type,
+
+        @Schema(description = "Valid variable names for expression problems", example = "[\"x\"]")
+        List<String> variables
 ) {
 }

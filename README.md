@@ -83,6 +83,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
 - `POST /api/v1/problems` → create a problem (admin only)
 - `PUT /api/v1/problems/{id}` → update a problem (admin only)
 - `DELETE /api/v1/problems/{id}` → delete a problem (admin only)
+- Expression problems expose `variables`, the valid variable names that submissions must use.
 
 ### Test cases
 - `GET /api/v1/problems/{problemId}/testcases` → list test cases for a problem (admin only)
@@ -138,11 +139,23 @@ The user must find the numeric value of one or more variables that satisfy an eq
     
 ### 2. Expression submission
 The user must provide a mathematical expression that matches the problem statement.
+Expression problems declare the valid variables explicitly. A submission that uses a different variable name is rejected.
 - Example
   - Problem: _"Find the derivative of `x^3`"_
+  - Problem variables:
+    ```json
+    ["x"]
+    ```
+  - Test case:
+    ```json
+    {
+      "variableValues": "{\"x\": 2}",
+      "expectedAnswer": "12"
+    }
+    ```
   - Submission:
     ```json 
-    { "answer": "3x^2" }
+    { "answer": "3*x^2" }
     ```
 
 ## Build, Execution, and Shutdown

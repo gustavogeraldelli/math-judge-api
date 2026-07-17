@@ -42,6 +42,7 @@ class ProblemServiceTest {
         problem.setDescription("Find the derivative of x^2");
         problem.setDifficulty(ProblemDifficulty.EASY);
         problem.setType(ProblemType.EXPRESSION);
+        problem.setVariables("[\"x\"]");
     }
 
     @Nested
@@ -108,6 +109,7 @@ class ProblemServiceTest {
             updateData.setTitle("Advanced Derivative Problem");
             updateData.setDifficulty(ProblemDifficulty.MEDIUM);
             updateData.setType(ProblemType.NUMERIC);
+            updateData.setVariables("[]");
 
             when(problemRepository.findById(1L)).thenReturn(Optional.of(problem));
             when(problemRepository.save(any(Problem.class))).thenReturn(problem);

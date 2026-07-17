@@ -24,6 +24,7 @@ class ExpressionAnswerEvaluatorTest {
         problem = new Problem();
         problem.setId(1L);
         problem.setType(ProblemType.EXPRESSION);
+        problem.setVariables("[\"x\"]");
         problem.setTestCases(List.of(
                 new TestCase(1L, problem, "2", "4.0"),
                 new TestCase(2L, problem, "5", "10.0")
@@ -36,6 +37,50 @@ class ExpressionAnswerEvaluatorTest {
         var result = evaluator.evaluate(problem, "2*x");
 
         assertEquals(SubmissionStatus.ACCEPTED, result.status());
+    }
+
+    @Test
+    @DisplayName("Should reject undeclared variable")
+    void shouldRejectUndeclaredVariable() {
+        var result = evaluator.evaluate(problem, "2*a");
+
+        assertEquals(SubmissionStatus.WRONG_ANSWER, result.status());
+    }
+
+    @Test
+    @DisplayName("Should accept expression with multiple declared variables")
+    void shouldAcceptExpressionWithMultipleDeclaredVariables() {
+        problem.setVariables("[\"x\",\"y\"]");
+        problem.setTestCases(List.of(
+                new TestCase(1L, problem, "{\"x\":2,\"y\":3}", "5.0"),
+                new TestCase(2L, problem, "{\"x\":5,\"y\":7}", "12.0")
+        ));
+
+        var result = evaluator.evaluate(problem, "x+y");
+
+        assertEquals(SubmissionStatus.ACCEPTED, result.status());
+    }
+
+    @Test
+    @DisplayName("Should reject expression using different variable names")
+    void shouldRejectExpressionUsingDifferentVariableNames() {
+        problem.setVariables("[\"x\",\"y\"]");
+        problem.setTestCases(List.of(new TestCase(1L, problem, "{\"x\":2,\"y\":3}", "5.0")));
+
+        var result = evaluator.evaluate(problem, "a+b");
+
+        assertEquals(SubmissionStatus.WRONG_ANSWER, result.status());
+    }
+
+    @Test
+    @DisplayName("Should reject missing variable value")
+    void shouldRejectMissingVariableValue() {
+        problem.setVariables("[\"x\",\"y\"]");
+        problem.setTestCases(List.of(new TestCase(1L, problem, "{\"x\":2}", "5.0")));
+
+        var result = evaluator.evaluate(problem, "x+y");
+
+        assertEquals(SubmissionStatus.WRONG_ANSWER, result.status());
     }
 
     @Test

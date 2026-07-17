@@ -31,6 +31,7 @@ class JudgeServiceTest {
     void shouldRouteExpressionProblemToExpressionEvaluator() {
         var problem = new Problem();
         problem.setType(ProblemType.EXPRESSION);
+        problem.setVariables("[\"x\"]");
         problem.setTestCases(List.of(new TestCase(1L, problem, "2", "4.0")));
         var judgeService = new JudgeService(List.of(new NumericAnswerEvaluator(), new ExpressionAnswerEvaluator()));
 
