@@ -5,6 +5,7 @@ import dev.gustavo.math.exception.EntityNotFoundException;
 import dev.gustavo.math.repository.SubmissionRepository;
 import dev.gustavo.math.service.judge.JudgeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ public class SubmissionJudgingProcessor {
     private final JudgeService judgeService;
 
     @Transactional
+    @CacheEvict(value = "ranking", allEntries = true)
     public void judge(Long submissionId) {
         var submission = submissionRepository.findByIdWithProblemAndTestCases(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException("Submission", submissionId.toString()));

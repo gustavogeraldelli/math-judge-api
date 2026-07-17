@@ -12,6 +12,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
 - **Java 21**, **Spring Boot 3.5.4**
 - **Maven**
 - **PostgreSQL**, **Flyway**, **Spring Data JPA**
+- **Spring Cache** with **Caffeine** for local in-memory caching
 - **Spring Security** with **JWT**
 - **JUnit 5**, **Mockito** and **Testcontainers** for tests
 - **Springdoc OpenAPI (Swagger)** for API documentation
@@ -143,32 +144,6 @@ The user must provide a mathematical expression that matches the problem stateme
     ```json 
     { "answer": "3x^2" }
     ```
-## Project Structure
-```
-src/
-├── main/
-│   ├── java/
-│   │   └── dev/gustavo/math/
-│   │       ├── controller/ 
-│   │       │   ├── dto/
-│   │       │   └── doc/
-│   │       ├── entity/
-│   │       │   └── enums
-│   │       ├── exceptions/
-│   │       ├── infra/
-│   │       │   ├── config/
-│   │       │   └── security/
-│   │       ├── mapper/
-│   │       ├── repository/
-│   │       └── service/
-│   └── resources/
-│       ├── db/migration/
-│       └── application.yml
-└── test/
-    └── java/
-        └── dev/gustavo/math/
-            └── service/
-```
 
 ## Build, Execution, and Shutdown
 - Start the database with Docker
