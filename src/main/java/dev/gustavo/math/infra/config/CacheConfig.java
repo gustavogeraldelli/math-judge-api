@@ -18,7 +18,8 @@ public class CacheConfig {
         var cacheManager = new CaffeineCacheManager("problems", "problemById", "ranking");
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .maximumSize(1_000)
-                .expireAfterWrite(Duration.ofMinutes(10)));
+                .expireAfterWrite(Duration.ofMinutes(10))
+                .recordStats());
         return cacheManager;
     }
 }

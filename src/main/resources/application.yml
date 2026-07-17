@@ -17,6 +17,15 @@ springdoc:
   api-docs:
     path: /api-docs
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
 api:
   jwt:
     secret: ${SECRET_KEY:supersecret}

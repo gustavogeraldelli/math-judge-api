@@ -14,6 +14,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
 - **PostgreSQL**, **Flyway**, **Spring Data JPA**
 - **Spring Cache** with **Caffeine** for local in-memory caching
 - **Spring Security** with **JWT**
+- **Spring Boot Actuator** for healthcheck endpoints
 - **JUnit 5**, **Mockito** and **Testcontainers** for tests
 - **Springdoc OpenAPI (Swagger)** for API documentation
 - **MapStruct** and **Lombok** for productivity
@@ -22,6 +23,11 @@ The API was designed to be a complete and efficient solution for mathematical pr
 ## API Documentation
 - Access the Swagger UI at `http://localhost:8080/swagger-ui/index.html`
 - The documentation JSON is available at `http://localhost:8080/api-docs`
+
+## Healthcheck
+- `GET /actuator/health` → public application healthcheck
+- `GET /actuator/info` → public application info endpoint
+- Only `health` and `info` are exposed by default.
 
 ## Main Endpoints
 
