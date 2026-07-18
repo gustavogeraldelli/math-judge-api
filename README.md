@@ -107,6 +107,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
 - `GET /api/v1/submissions/{id}` → get a submission (owner or admin)
 - `POST /api/v1/problems/{problemId}/submissions` → submit a solution to a problem
   - The submission is created with `PENDING` status and evaluated asynchronously.
+  - Rate limited by authenticated user: 30 submissions per minute.
 - `DELETE /api/v1/submissions/{id}` → delete a submission (admin only)
   - Payload
     ```json

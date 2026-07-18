@@ -5,8 +5,10 @@ import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.exception.InvalidLoginException;
 import dev.gustavo.math.exception.InvalidProblemVariablesException;
 import dev.gustavo.math.exception.InvalidRefreshTokenException;
+import dev.gustavo.math.exception.RateLimitExceededException;
 import dev.gustavo.math.exception.TokenDecodingException;
 import dev.gustavo.math.exception.UsernameIsAlreadyInUseException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -62,6 +64,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidProblemVariablesException.class)
     public ResponseEntity<ErrorResponseDTO> handleInvalidProblemVariablesException(InvalidProblemVariablesException e) {
         return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponseDTO> handleRateLimitExceededException(RateLimitExceededException e) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Rate-Limit-Limit", Long.toString(e.getLimit()));
+        headers.set("X-Rate-Limit-Remaining", "0");
+        headers.set(HttpHeaders.RETRY_AFTER, Long.toString(e.getRetryAfterSeconds()));
+        return new ResponseEntity<>(new ErrorResponseDTO(e.getMessage()), headers, HttpStatus.TOO_MANY_REQUESTS);
     }
 
 }

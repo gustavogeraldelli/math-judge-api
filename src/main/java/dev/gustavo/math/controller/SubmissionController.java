@@ -5,6 +5,7 @@ import dev.gustavo.math.controller.dto.PageableResponseDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionRequestDTO;
 import dev.gustavo.math.controller.dto.submission.SubmissionResponseDTO;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
+import dev.gustavo.math.infra.ratelimit.SubmissionRateLimiter;
 import dev.gustavo.math.mapper.SubmissionMapper;
 import dev.gustavo.math.service.SubmissionService;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ public class SubmissionController implements ISubmissionController {
 
     private final SubmissionService submissionService;
     private final SubmissionMapper submissionMapper;
+    private final SubmissionRateLimiter submissionRateLimiter;
 
     @GetMapping("/submissions")
     @ResponseStatus(HttpStatus.OK)
@@ -59,10 +61,13 @@ public class SubmissionController implements ISubmissionController {
     public SubmissionResponseDTO create(@PathVariable Long problemId,
                                         @Valid @RequestBody SubmissionRequestDTO submissionCreateRequest,
                                         Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        submissionRateLimiter.checkSubmissionAllowed(userId);
+
         var submission = submissionService.create(
                 submissionMapper.toSubmission(submissionCreateRequest),
                 problemId,
-                (UUID) authentication.getPrincipal());
+                userId);
         return submissionMapper.toSubmissionResponseDTO(submission);
     }
 

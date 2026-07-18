@@ -6,6 +6,7 @@ import dev.gustavo.math.entity.Submission;
 import dev.gustavo.math.entity.enums.SubmissionStatus;
 import dev.gustavo.math.exception.ForbiddenOperationException;
 import dev.gustavo.math.exception.TokenDecodingException;
+import dev.gustavo.math.infra.ratelimit.SubmissionRateLimiter;
 import dev.gustavo.math.infra.security.SecurityConfig;
 import dev.gustavo.math.infra.security.SecurityFilter;
 import dev.gustavo.math.mapper.SubmissionMapper;
@@ -32,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -41,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SubmissionController.class)
-@Import({SecurityConfig.class, SecurityFilter.class})
+@Import({SecurityConfig.class, SecurityFilter.class, SubmissionRateLimiter.class})
 class SubmissionControllerTest {
 
     @Autowired
@@ -95,6 +97,47 @@ class SubmissionControllerTest {
                     .andExpect(jsonPath("$.status").value("PENDING"));
 
             verify(submissionService).create(submission, 10L, userId);
+        }
+
+        @Test
+        @DisplayName("Should rate limit submission creation per authenticated user")
+        void shouldRateLimitSubmissionCreationPerAuthenticatedUser() throws Exception {
+            UUID userId = UUID.randomUUID();
+            var submission = new Submission();
+            submission.setAnswer("2*x");
+            var createdSubmission = new Submission();
+            createdSubmission.setId(42L);
+            var response = new SubmissionResponseDTO(42L, 10L, SubmissionStatus.PENDING, null);
+
+            authenticate("rate-limited-user-token", userId, "ROLE_USER");
+            when(submissionMapper.toSubmission(any())).thenReturn(submission);
+            when(submissionService.create(any(Submission.class), eq(10L), eq(userId))).thenReturn(createdSubmission);
+            when(submissionMapper.toSubmissionResponseDTO(createdSubmission)).thenReturn(response);
+
+            for (int i = 0; i < 30; i++) {
+                mockMvc.perform(post("/api/v1/problems/10/submissions")
+                                .header("Authorization", "Bearer rate-limited-user-token")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "answer": "2*x"
+                                        }
+                                        """))
+                        .andExpect(status().isCreated());
+            }
+
+            mockMvc.perform(post("/api/v1/problems/10/submissions")
+                            .header("Authorization", "Bearer rate-limited-user-token")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                      "answer": "2*x"
+                                    }
+                                    """))
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath("$.error").value("Too many submission attempts"));
+
+            verify(submissionService, times(30)).create(any(Submission.class), eq(10L), eq(userId));
         }
 
         @Test

@@ -55,13 +55,19 @@ class AuthRateLimitingFilterTest {
     void shouldIgnoreNonLoginRequests() throws Exception {
         var filter = new AuthRateLimitingFilter();
         FilterChain filterChain = mock(FilterChain.class);
-        var request = new MockHttpServletRequest("POST", "/api/v1/auth/register");
-        var response = new MockHttpServletResponse();
 
-        filter.doFilter(request, response, filterChain);
+        for (int i = 0; i < 10; i++) {
+            var request = new MockHttpServletRequest("POST", "/api/v1/auth/register");
+            request.setRemoteAddr("192.168.0.30");
+            var response = new MockHttpServletResponse();
 
-        assertEquals(200, response.getStatus());
-        verify(filterChain, times(1)).doFilter(request, response);
+            filter.doFilter(request, response, filterChain);
+
+            assertEquals(200, response.getStatus());
+            assertEquals(null, response.getHeader("X-Rate-Limit-Remaining"));
+        }
+
+        verify(filterChain, times(10)).doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     private MockHttpServletRequest loginRequest(String remoteAddress) {
