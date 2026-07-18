@@ -15,6 +15,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
 - **Spring Cache** with **Caffeine** for local in-memory caching
 - **Spring Security** with **JWT**
 - **Spring Boot Actuator** for healthcheck endpoints
+- **Bucket4j** for local rate limiting
 - **JUnit 5**, **Mockito** and **Testcontainers** for tests
 - **Springdoc OpenAPI (Swagger)** for API documentation
 - **MapStruct** and **Lombok** for productivity
@@ -45,6 +46,7 @@ The API was designed to be a complete and efficient solution for mathematical pr
     }
     ```
 - `POST /api/v1/auth/login` → returns access and refresh tokens
+  - Rate limited by IP: 5 attempts per minute
   - Payload
     ```json
     {
