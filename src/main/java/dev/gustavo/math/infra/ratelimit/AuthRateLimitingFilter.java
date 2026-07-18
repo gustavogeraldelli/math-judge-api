@@ -35,7 +35,7 @@ public class AuthRateLimitingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (!HttpMethod.POST.matches(request.getMethod()) && LOGIN_PATH.equals(request.getRequestURI())) {
+        if (!isLoginRequest(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,6 +61,10 @@ public class AuthRateLimitingFilter extends OncePerRequestFilter {
         response.setHeader(HttpHeaders.RETRY_AFTER, Long.toString(retryAfterSeconds));
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write("{\"error\":\"Too many login attempts\"}");
+    }
+
+    private boolean isLoginRequest(HttpServletRequest request) {
+        return HttpMethod.POST.matches(request.getMethod()) && LOGIN_PATH.equals(request.getRequestURI());
     }
 
     private Bucket newLoginBucket() {
